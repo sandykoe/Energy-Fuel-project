@@ -42,10 +42,12 @@ Cloudflare Workers Builds is connected to `sandykoe/Energy-Fuel-project`, branch
 - Root directory: `/`
 - Node.js: `24.22.1` (pinned by `.node-version` for production and preview builds)
 - Build command: `npm run build`
-- Production deploy command: `npx --yes cf@1.0.0-beta.31 deploy dist`
+- Production deploy command: `npx --yes cf@1.0.0-beta.31 deploy dist && npm run check:deployment`
 - Preview deploy command: `npx --yes cf@1.0.0-beta.31 previews deploy dist`
 
 For a local deployment, authenticate with `cf auth login`, then run `npm ci` and `npm run deploy`. To validate without publishing, run `npm run build` followed by `cf deploy dist --dry-run`. Generated `.cloudflare/` output stays out of Git.
+
+The production build verifies that the public page, workspace, planning engine and scenario data match the local build. Run `npm run check:deployment` to repeat this check, or pass a different base URL after `--`. This check requires network access to the deployed site.
 
 ## 首页操作与模型
 
