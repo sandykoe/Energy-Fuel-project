@@ -11,6 +11,7 @@
     "collect": "python3 scripts/refresh_data.py --output-dir dist/data",
     "build": "node scripts/build.mjs",
     "predev": "npm run build",
+    "deploy": "npm run build && npx --yes cf@1.0.0-beta.31 deploy dist",
     "build:workspace": "node scripts/build-workspace.mjs",
     "test:browser": "node scripts/browser_review.mjs"
   },

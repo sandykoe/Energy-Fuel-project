@@ -8,3 +8,4 @@ artifacts/
 *.tar.gz
 *.zip
 .DS_Store
+.cloudflare/

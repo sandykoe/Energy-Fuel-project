@@ -33,6 +33,20 @@ npm test
 npm run check
 ```
 
+## Cloudflare deployment
+
+The site is served by the `energy-fuel-project` Worker using static assets from `dist/`. The Worker identity and runtime settings live in `cloudflare.config.ts`; the `dist` argument explicitly selects the published directory. No backend secrets or database bindings are required.
+
+Cloudflare Workers Builds is connected to `sandykoe/Energy-Fuel-project`, branch `main`. Keep that branch synchronized with the original project to publish upstream updates.
+
+- Root directory: `/`
+- Node.js: `24.22.1` (pinned by `.node-version` for production and preview builds)
+- Build command: `npm run build`
+- Production deploy command: `npx --yes cf@1.0.0-beta.31 deploy dist`
+- Preview deploy command: `npx --yes cf@1.0.0-beta.31 previews deploy dist`
+
+For a local deployment, authenticate with `cf auth login`, then run `npm ci` and `npm run deploy`. To validate without publishing, run `npm run build` followed by `cf deploy dist --dry-run`. Generated `.cloudflare/` output stays out of Git.
+
 ## 首页操作与模型
 
 1. 选择出发和目的机场。按需添加、删除或调整停靠顺序，建立 1–5 个连续航段。通用宽体机或窄体机参数生成航时、耗油和保留油。
