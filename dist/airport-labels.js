@@ -669,6 +669,346 @@ export const AIRPORT_LABELS = {
       "city": "利马",
       "name": "利马豪尔赫·查韦斯"
     }
+  },
+  "TFU": {
+    "en": {
+      "city": "Chengdu (Jianyang)",
+      "name": "Chengdu Tianfu International Airport"
+    },
+    "zh": {
+      "city": "成都",
+      "name": "成都 · TFU"
+    }
+  },
+  "JED": {
+    "en": {
+      "city": "Jeddah",
+      "name": "King Abdulaziz International Airport"
+    },
+    "zh": {
+      "city": "吉达",
+      "name": "吉达 · JED"
+    }
+  },
+  "HGH": {
+    "en": {
+      "city": "Hangzhou",
+      "name": "Hangzhou Xiaoshan International Airport"
+    },
+    "zh": {
+      "city": "杭州",
+      "name": "杭州 · HGH"
+    }
+  },
+  "CKG": {
+    "en": {
+      "city": "Chongqing",
+      "name": "Chongqing Jiangbei International Airport"
+    },
+    "zh": {
+      "city": "重庆",
+      "name": "重庆 · CKG"
+    }
+  },
+  "KMG": {
+    "en": {
+      "city": "Kunming",
+      "name": "Kunming Changshui International Airport"
+    },
+    "zh": {
+      "city": "昆明",
+      "name": "昆明 · KMG"
+    }
+  },
+  "XIY": {
+    "en": {
+      "city": "Xi'an",
+      "name": "Xi'an Xianyang International Airport"
+    },
+    "zh": {
+      "city": "西安",
+      "name": "西安 · XIY"
+    }
+  },
+  "SAW": {
+    "en": {
+      "city": "Pendik, Istanbul",
+      "name": "Istanbul Sabiha Gökçen International Airport"
+    },
+    "zh": {
+      "city": "伊斯坦布尔",
+      "name": "伊斯坦布尔 · SAW"
+    }
+  },
+  "BLR": {
+    "en": {
+      "city": "Bengaluru",
+      "name": "Kempegowda International Airport Bengaluru"
+    },
+    "zh": {
+      "city": "班加罗尔",
+      "name": "班加罗尔 · BLR"
+    }
+  },
+  "AYT": {
+    "en": {
+      "city": "Antalya",
+      "name": "Antalya International Airport"
+    },
+    "zh": {
+      "city": "安塔利亚",
+      "name": "安塔利亚 · AYT"
+    }
+  },
+  "CTU": {
+    "en": {
+      "city": "Chengdu (Shuangliu)",
+      "name": "Chengdu Shuangliu International Airport"
+    },
+    "zh": {
+      "city": "成都",
+      "name": "成都 · CTU"
+    }
+  },
+  "DMK": {
+    "en": {
+      "city": "Bangkok",
+      "name": "Don Mueang International Airport"
+    },
+    "zh": {
+      "city": "曼谷",
+      "name": "曼谷 · DMK"
+    }
+  },
+  "NKG": {
+    "en": {
+      "city": "Nanjing",
+      "name": "Nanjing Lukou International Airport"
+    },
+    "zh": {
+      "city": "南京",
+      "name": "南京 · NKG"
+    }
+  },
+  "WUH": {
+    "en": {
+      "city": "Wuhan (Huangpi)",
+      "name": "Wuhan Tianhe International Airport"
+    },
+    "zh": {
+      "city": "武汉",
+      "name": "武汉 · WUH"
+    }
+  },
+  "HYD": {
+    "en": {
+      "city": "Hyderabad",
+      "name": "Rajiv Gandhi International Airport"
+    },
+    "zh": {
+      "city": "海得拉巴",
+      "name": "海得拉巴 · HYD"
+    }
+  },
+  "CSX": {
+    "en": {
+      "city": "Changsha (Changsha)",
+      "name": "Changsha Huanghua International Airport"
+    },
+    "zh": {
+      "city": "长沙",
+      "name": "长沙 · CSX"
+    }
+  },
+  "CJU": {
+    "en": {
+      "city": "Jeju City",
+      "name": "Jeju International Airport"
+    },
+    "zh": {
+      "city": "济州",
+      "name": "济州 · CJU"
+    }
+  },
+  "XMN": {
+    "en": {
+      "city": "Xiamen",
+      "name": "Xiamen Gaoqi International Airport"
+    },
+    "zh": {
+      "city": "厦门",
+      "name": "厦门 · XMN"
+    }
+  },
+  "CGO": {
+    "en": {
+      "city": "Zhengzhou",
+      "name": "Zhengzhou Xinzheng International Airport"
+    },
+    "zh": {
+      "city": "郑州",
+      "name": "郑州 · CGO"
+    }
+  },
+  "URC": {
+    "en": {
+      "city": "Ürümqi",
+      "name": "Ürümqi Tianshan International Airport"
+    },
+    "zh": {
+      "city": "乌鲁木齐",
+      "name": "乌鲁木齐 · URC"
+    }
+  },
+  "TAO": {
+    "en": {
+      "city": "Qingdao (Jiaozhou)",
+      "name": "Qingdao Jiaodong International Airport"
+    },
+    "zh": {
+      "city": "青岛",
+      "name": "青岛 · TAO"
+    }
+  },
+  "HAK": {
+    "en": {
+      "city": "Haikou (Meilan)",
+      "name": "Haikou Meilan International Airport"
+    },
+    "zh": {
+      "city": "海口",
+      "name": "海口 · HAK"
+    }
+  },
+  "SHE": {
+    "en": {
+      "city": "Shenyang",
+      "name": "Shenyang Taoxian International Airport"
+    },
+    "zh": {
+      "city": "沈阳",
+      "name": "沈阳 · SHE"
+    }
+  },
+  "HRB": {
+    "en": {
+      "city": "Harbin",
+      "name": "Harbin Taiping International Airport"
+    },
+    "zh": {
+      "city": "哈尔滨",
+      "name": "哈尔滨 · HRB"
+    }
+  },
+  "KWE": {
+    "en": {
+      "city": "Guiyang (Nanming)",
+      "name": "Guiyang Longdongbao International Airport"
+    },
+    "zh": {
+      "city": "贵阳",
+      "name": "贵阳 · KWE"
+    }
+  },
+  "OKA": {
+    "en": {
+      "city": "Naha",
+      "name": "Naha International Airport"
+    },
+    "zh": {
+      "city": "冲绳",
+      "name": "冲绳 · OKA"
+    }
+  },
+  "SYX": {
+    "en": {
+      "city": "Sanya (Tianya)",
+      "name": "Sanya Phoenix International Airport"
+    },
+    "zh": {
+      "city": "三亚",
+      "name": "三亚 · SYX"
+    }
+  },
+  "TSN": {
+    "en": {
+      "city": "Tianjin",
+      "name": "Tianjin Binhai International Airport"
+    },
+    "zh": {
+      "city": "天津",
+      "name": "天津 · TSN"
+    }
+  },
+  "TNA": {
+    "en": {
+      "city": "Jinan (Licheng)",
+      "name": "Jinan Yaoqiang International Airport"
+    },
+    "zh": {
+      "city": "济南",
+      "name": "济南 · TNA"
+    }
+  },
+  "DLC": {
+    "en": {
+      "city": "Dalian (Ganjingzi)",
+      "name": "Dalian Zhoushuizi International Airport"
+    },
+    "zh": {
+      "city": "大连",
+      "name": "大连 · DLC"
+    }
+  },
+  "CGQ": {
+    "en": {
+      "city": "Changchun",
+      "name": "Changchun Longjia International Airport"
+    },
+    "zh": {
+      "city": "长春",
+      "name": "长春 · CGQ"
+    }
+  },
+  "HKT": {
+    "en": {
+      "city": "Phuket",
+      "name": "Phuket International Airport"
+    },
+    "zh": {
+      "city": "普吉岛",
+      "name": "普吉岛 · HKT"
+    }
+  },
+  "LHW": {
+    "en": {
+      "city": "Lanzhou (Yongdeng)",
+      "name": "Lanzhou Zhongchuan International Airport"
+    },
+    "zh": {
+      "city": "兰州",
+      "name": "兰州 · LHW"
+    }
+  },
+  "FOC": {
+    "en": {
+      "city": "Fuzhou (Changle)",
+      "name": "Fuzhou Changle International Airport"
+    },
+    "zh": {
+      "city": "福州",
+      "name": "福州 · FOC"
+    }
+  },
+  "ITM": {
+    "en": {
+      "city": "Osaka",
+      "name": "Osaka Itami International Airport"
+    },
+    "zh": {
+      "city": "大阪",
+      "name": "大阪 · ITM"
+    }
   }
 };
 export const airportLabel = (airport, language = "en") => AIRPORT_LABELS[airport.code]?.[language] || airport;

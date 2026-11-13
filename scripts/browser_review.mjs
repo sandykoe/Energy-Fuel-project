@@ -327,14 +327,14 @@ try {
   await reviewGlobalMap(page);
   await reviewIntegratedModel();
 
-  assert.equal(await field(page,0,'from').locator('option').evaluateAll(items => items.filter(item => item.value).length), 67);
+  assert.equal(await field(page,0,'from').locator('option').evaluateAll(items => items.filter(item => item.value).length), 101);
   await chooseRoute(page, ['SIN','HKG']);
   await page.locator('#calculate').click();
   assert.equal(await page.locator('#model-error').isVisible(), false);
   const oneLeg = JSON.parse(await downloadText(page, '#download-plan'));
   assert.equal(oneLeg.result.feasible, true);
   assert.ok(Math.abs(oneLeg.result.savingsUsd) < .01, 'A single leg must not invent a tankering saving');
-  record('Any of 67 airports can be chosen; a one-leg route calculates fuel without false tankering savings');
+  record('Any of 101 airports can be chosen; a one-leg route calculates fuel without false tankering savings');
 
   await page.locator('#add-leg').click();
   await field(page,1,'to').selectOption('NRT');
@@ -358,8 +358,8 @@ try {
 
   const firstPrice = Number(await field(page,0,'priceUsdPerT').inputValue());
   await tab(page, 'oil-markets');
-  await page.waitForFunction(() => document.querySelectorAll('#data-airport-rows tr').length === 67);
-  assert.equal(await page.locator('#data-airport-rows [data-airport-detail]').count(), 67);
+  await page.waitForFunction(() => document.querySelectorAll('#data-airport-rows tr').length === 101);
+  assert.equal(await page.locator('#data-airport-rows [data-airport-detail]').count(), 101);
   await page.locator('#data-airport-search').fill('SIN');
   await page.locator('[data-airport-detail="SIN"]').click();
   assert.ok((await page.locator('#data-airport-detail').textContent()).includes('SIN'));
@@ -369,10 +369,10 @@ try {
   await page.locator('#data-base').fill(String(originalBase+25));
   await page.locator('#data-assumption-form button[type="submit"]').click();
   const dataset = JSON.parse(await downloadText(page, '#data-export-json'));
-  assert.equal(dataset.records.length, 67);
+  assert.equal(dataset.records.length, 101);
   assert.equal(dataset.classification, 'synthetic_scenario');
   assert.ok(dataset.assumptions && dataset.aircraftProfiles && dataset.assumptionCatalog?.length);
-  assert.equal(new Set(dataset.records.map(item => item.code)).size, 67);
+  assert.equal(new Set(dataset.records.map(item => item.code)).size, 101);
   for(const item of dataset.records) {
     assert.ok(Number.isFinite(item.priceUsdPerT) && item.priceUsdPerT > 0);
     assert.ok(item.components.length >= 5 && item.provenance.geography.sourceUrl);
@@ -410,7 +410,7 @@ try {
   await tab(page,'oil-markets'); await page.locator('#data-reset').click();
   await tab(page,'oil-markets');
   assert.ok(await page.locator('.data-source-table tbody tr').count() >= 5);
-  record('Fuel data exposes 67 complete component sums, sources and exports; changed assumptions update the entered route');
+  record('Fuel data exposes 101 complete component sums, sources and exports; changed assumptions update the entered route');
 
   await tab(page,'calculations');
   await field(page,0,'priceUsdPerT').fill('975');

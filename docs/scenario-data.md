@@ -1,13 +1,13 @@
 # Configurable route model and transparent synthetic inputs
 
-Fuel Atlas can calculate a user-defined itinerary of **one to five continuous legs**, chosen from the 67-airport directory. The user chooses the route; the optimizer chooses how much fuel to purchase at each departure. A one-leg route provides fuel requirements and feasibility with no cross-station tankering arbitrage. It does not search for an optimal itinerary or execute purchases.
+Fuel Atlas can calculate a user-defined itinerary of **one to five continuous legs**, chosen from the 101-airport directory. The user chooses the route; the optimizer chooses how much fuel to purchase at each departure. A one-leg route provides fuel requirements and feasibility with no cross-station tankering arbitrage. It does not search for an optimal itinerary or execute purchases.
 
 Airport coordinates are sourced from OurAirports. The airport prices, supply caps and generic aircraft parameters described here are **generated scenarios**, not observed quotes, stock reports or certified aircraft performance. Their purpose is to make every selected route calculable from inspectable assumptions while actual operator and supplier data are unavailable. A failed constraint remains a failed constraint; the generator never invents a larger tank, lower payload or favourable quote to make a route work.
 
 ## Source of truth and reproduction
 
 - `dist/scenario-data.js` contains the deterministic functions, default parameters, bilingual field labels, units and replacement-data descriptions.
-- `dist/data/scenario-dataset.json` contains the complete generated 67-airport dataset, regional assumptions, two generic aircraft profiles and provenance metadata.
+- `dist/data/scenario-dataset.json` contains the complete generated 101-airport dataset, regional assumptions, two generic aircraft profiles and provenance metadata.
 - `scripts/build_scenario_data.mjs` rebuilds the JSON or verifies exact equality with it.
 - `tests/scenario-data.test.mjs` checks the complete dataset, formulas, overrides, route envelopes, one-to-five-leg calculations, invalid inputs and every directed airport/profile pair.
 
@@ -166,4 +166,4 @@ No paid account is required to run the synthetic model or inspect the public ref
 
 ## Validation completed for this release
 
-The committed tests verify all 67 decompositions, deterministic JSON regeneration, independent spherical geometry, additive price changes, profile override propagation, infeasible-envelope handling and route lengths from one to five legs. Every directed pair of distinct airports is generated under both profiles: **8,844 airport/profile pairs**, each with finite values and an explicit validity result. Selected generated itineraries are passed through the optimizer and checked for whole-rotation fuel conservation, common terminal stock and absence of spurious single-leg arbitrage. The archived research results and explanatory essay remain a separate frozen analysis.
+The committed tests verify all 101 decompositions, deterministic JSON regeneration, independent spherical geometry, additive price changes, profile override propagation, infeasible-envelope handling and route lengths from one to five legs. Every directed pair of distinct airports is generated under both profiles: **20,200 airport/profile pairs**, each with finite values and an explicit validity result. Selected generated itineraries are passed through the optimizer and checked for whole-rotation fuel conservation, common terminal stock and absence of spurious single-leg arbitrage. The archived research results and explanatory essay remain a separate frozen analysis.

@@ -11,9 +11,9 @@ import {
 
 const near = (actual, expected, tolerance = 1e-9) => assert.ok(Math.abs(actual - expected) <= tolerance, `${actual} != ${expected}`);
 
-test('all 67 airports have complete reproducible synthetic components separate from source geography', async () => {
+test('all available airports have complete reproducible synthetic components separate from source geography', async () => {
   const dataset = buildScenarioDataset();
-  assert.equal(dataset.records.length, 67);
+  assert.equal(dataset.records.length, airportData.length);
   assert.equal(dataset.observedAt, null);
   assert.equal(dataset.classification, 'synthetic_scenario');
   assert.deepEqual(dataset.records.map(row => row.code), airportData.map(row => row.code));
@@ -41,7 +41,7 @@ test('all 67 airports have complete reproducible synthetic components separate f
   const frozen = await readFile(new URL('../dist/data/scenario-dataset.json', import.meta.url), 'utf8');
   assert.equal(frozen, JSON.stringify(dataset, null, 2) + '\n');
   const result = execFileSync(process.execPath, ['scripts/build_scenario_data.mjs', '--check'], { cwd: new URL('../', import.meta.url), encoding: 'utf8' });
-  assert.match(result, /Verified 67 deterministic/);
+  assert.match(result, /Verified 101 deterministic/);
 });
 
 test('airport prices respond additively to explicit base, regional, distance, service and fiscal assumptions', () => {
@@ -144,7 +144,7 @@ test('all airport pairs generate finite explanatory values or explicit envelope 
     }
   }
   assert.ok(inside > 0 && outside > 0);
-  assert.equal(inside + outside, 67 * 66 * 2);
+  assert.equal(inside + outside, airportData.length * (airportData.length - 1) * 2);
 });
 
 test('invalid routes, mismatched units, unknown overrides and overflowing formulas are rejected', () => {

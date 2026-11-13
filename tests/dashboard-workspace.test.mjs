@@ -92,7 +92,7 @@ async function mount(t, { hash = "", reducedMotion = false, preset = "eastasia" 
   Object.defineProperty($("#flight-date"), "validity", {
     value: { valid: true },
   });
-  for (const [id, initial] of [["aircraft", "widebody"], ["scenario-preset", "global"], ["map-scope", "global"]]) {
+  for (const [id, initial] of [["aircraft", "widebody"], ["scenario-preset", "global"], ["map-scope", "global"], ["airport-set", "all"], ["research-case", "base"]]) {
     let value = initial;
     Object.defineProperty($(`#${id}`), "value", {
       get: () => value, set: next => { value = String(next); }, configurable: true,

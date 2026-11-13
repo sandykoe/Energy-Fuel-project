@@ -39,7 +39,7 @@ export const INTEGRATED_FIELD_CATALOG = freeze([
   field('airports', 'taxAdjustmentUsdPerT', 'Fiscal adjustment', '税费调整', 'USD/t', 'Explicit signed adjustment on uplift. Zero in quote mode because applicable fees are included.', '按加注量收取的可正可负税费调整；报价模式已含适用费用，设为零。', { signed: true }),
   field('airports', 'holdingUsdPerTPerStage', 'Ground holding cost', '地面库存持有费', 'USD/t/stage', 'Scenario cost on closing ground inventory per departure event, not per hour or day. Quote mode adds no holding charge.', '按每个出发事件期末地面库存计收的情景费用，不是小时或日费率；报价模式不另加库存费。'),
   field('deliveredOffers', 'capacityT', 'Local offer per stage', '每阶段本地交付上限', 't/stage', 'Assumed delivery volume only at the corresponding airport visit; an imported price does not verify allocation.', '仅在对应机场到访阶段可交付的假设量；导入价格并不能核实该配额。', { acceptsStageArray: true }),
-  field('deliveredOffers', 'totalCapacityT', 'Local offer horizon allocation', '全行程本地交付配额', 't/horizon', 'Assumed cumulative volume of this all-inclusive contract, shared by repeated visits.', '全包合同在全行程内的累计假设配额，多次到访共享。'),
+  field('deliveredOffers', 'totalCapacityT', 'Local offer horizon allocation', '全行程本地交付配额', 't/horizon', 'Assumed cumulative local fuel allocation, shared by repeated visits; a price input does not guarantee supply.', '本地燃油在全行程内的累计假设配额，多次到访共享；价格输入不代表供油保证。'),
 ]);
 
 export const INTEGRATED_DEFAULTS = Object.freeze({
@@ -115,21 +115,22 @@ function applyOverrides(network, overrides, count) {
  * Override maps use supplier:REGION, route:REGION:IATA, offer:IATA and airport IATA.
  */
 export function buildIntegratedNetwork(flightInput, { scenarioOptions = {}, priceMode = 'scenario', overrides = {} } = {}) {
-  if (!['scenario', 'demo', 'modeled', 'quotes', 'delivered'].includes(priceMode)) throw new RangeError(`Unknown price mode: ${priceMode}.`);
+  if (!['scenario', 'demo', 'modeled', 'quotes', 'delivered', 'research'].includes(priceMode)) throw new RangeError(`Unknown price mode: ${priceMode}.`);
   plain(scenarioOptions, 'Scenario options');
-  const legs = normalizedLegs(flightInput), delivered = ['quotes', 'delivered'].includes(priceMode), count = legs.length;
+  const research = priceMode === 'research';
+  const legs = normalizedLegs(flightInput), delivered = ['quotes', 'delivered', 'research'].includes(priceMode), count = legs.length;
   const network = {
     schemaVersion: INTEGRATED_DEFAULTS.schemaVersion, revision: INTEGRATED_DEFAULTS.revision,
     mode: delivered ? 'delivered' : 'modeled',
     stageCount: count, stageUnit: 'flight-departure-event',
     stages: legs.map((leg, i) => ({ index: i, from: leg.from, to: leg.to, label: labels(`Departure ${i + 1}: ${leg.from} → ${leg.to}`, `出发阶段 ${i + 1}：${leg.from} → ${leg.to}`) })),
     suppliers: [], routes: [], airports: [], deliveredOffers: [],
-    classification: delivered ? 'user_price_with_assumed_network' : 'synthetic_scenario',
+    classification: research ? 'research_estimates_with_assumed_network' : delivered ? 'user_price_with_assumed_network' : 'synthetic_scenario',
     geography: clone(GEOGRAPHY_PROVENANCE),
     provenance: {
       geography: 'OurAirports coordinates only; a reference airport is not an observed refinery or terminal.',
-      economics: delivered ? 'Caller-selected, all-inclusive user price inputs; not independently verified and not decomposed into refinery, freight or service prices.' : 'Deterministic economic assumptions from airportScenario, with separately identified manual delivered-price adjustments.',
-      physicalNetwork: 'All allocations, opening/terminal stocks, storage and lead times are editable analyst assumptions in both data modes. Imported prices establish none of these quantities.',
+      economics: research ? 'Dated research planning totals, not verified quotes. No extra synthetic delivery or service fees; taxes and contract terms are not fully harmonized.' : delivered ? 'Caller-selected, all-inclusive user price inputs; not independently verified and not decomposed into refinery, freight or service prices.' : 'Deterministic economic assumptions from airportScenario, with separately identified manual delivered-price adjustments.',
+      physicalNetwork: 'All allocations, opening/terminal stocks, storage and lead times are editable analyst assumptions in all price modes. Imported prices establish none of these quantities.',
       time: 'One stage per selected departure event; all receipts precede that event’s uplift. No clock-duration claim, opening cargo or post-horizon replenishment stage.',
       initialInventory: 'Opening ground fuel is already owned. Exact terminal ground stocks are identical in both comparison plans; aircraft initial and terminal fuel are separate.',
     },
@@ -162,7 +163,7 @@ export function buildIntegratedNetwork(flightInput, { scenarioOptions = {}, pric
       holdingUsdPerTPerStage: delivered ? 0 : INTEGRATED_DEFAULTS.holdingUsdPerTPerStage,
       coordinates: { lat: rawAirport.lat, lon: rawAirport.lon },
       visitStages: entries.map(entry => entry.index),
-      provenance: { classification: 'analyst_scenario', capacity: 'Largest explicit or default local visit cap; no observed airport tank or inventory.', stock: 'Opening and exact final stock default to zero; shared across repeated visits.', fees: delivered ? 'All included in the imported price; no additional fees.' : 'Service and fiscal adjustments from the current scenario settings.' },
+      provenance: { classification: 'analyst_scenario', capacity: 'Largest explicit or default local visit cap; no observed airport tank or inventory.', stock: 'Opening and exact final stock default to zero; shared across repeated visits.', fees: research ? 'Planning total charged once; extra synthetic fees disabled. Unverified taxes and contract terms remain unknown, not observed zero.' : delivered ? 'All included in the imported price; no additional fees.' : 'Service and fiscal adjustments from the current scenario settings.' },
     };
     network.airports.push(stock);
     if (delivered) {
@@ -172,10 +173,10 @@ export function buildIntegratedNetwork(flightInput, { scenarioOptions = {}, pric
         stageCaps[index] = caps[i];
       }
       network.deliveredOffers.push({
-        id: `offer:${code}`, airport: code, label: labels(`${code} all-inclusive offer`, `${code} 全包报价`),
+        id: `offer:${code}`, airport: code, label: research ? labels(`${code} research estimate`, `${code} 研究估价`) : labels(`${code} all-inclusive offer`, `${code} 全包报价`),
         priceUsdPerT: prices, capacityT: stageCaps, totalCapacityT: horizonCap,
         visitStages: entries.map(entry => entry.index),
-        provenance: { classification: 'user_supplied_price', price: 'Caller-resolved active into-plane price in USD/t, all applicable fees included. No independent supplier verification.', allocation: 'Scenario visit-cap allocation only; not a quantity guaranteed by the price record.', validity: 'Offer available only at its corresponding visit stage; resolve date validity before calling the model.' },
+        provenance: { classification: research ? 'research_estimate' : 'user_supplied_price', research: research ? flightInput.researchProvenance : undefined, price: research ? 'Estimated November 2026 planning total in USD/t. Taxes and eligibility are not fully harmonized; no guaranteed supplier offer.' : 'Caller-resolved active into-plane price in USD/t, all applicable fees included. No independent supplier verification.', allocation: 'Scenario visit-cap allocation only; not a quantity guaranteed by the price record.', validity: research ? 'Dated planning snapshot; the planning date does not update the price or establish contract validity.' : 'Offer available only at its corresponding visit stage; resolve date validity before calling the model.' },
       });
       continue;
     }

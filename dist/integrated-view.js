@@ -25,7 +25,13 @@ function renderInputs() {
   $('#chain-reset').disabled=!ready;
   if (!ready) { $('#chain-empty').textContent=t(error?'chain.notReady':'chain.empty'); return; }
   const delivered=network.mode==='delivered';
-  $('#chain-mode-description').textContent=t(delivered?'chain.delivered':'chain.modeled');
+  const research=network.classification==='research_estimates_with_assumed_network';
+  const offerTitle=$('#chain-offer-editor summary'), offerPrice=$('#chain-offer-editor [data-i18n="chain.quotedPrice"], #chain-offer-editor [data-i18n="research.totalPrice"]');
+  offerTitle.setAttribute('data-i18n',research?'research.allocations':'chain.offersTitle');
+  offerTitle.textContent=t(research?'research.allocations':'chain.offersTitle');
+  offerPrice.setAttribute('data-i18n',research?'research.totalPrice':'chain.quotedPrice');
+  offerPrice.textContent=t(research?'research.totalPrice':'chain.quotedPrice');
+  $('#chain-mode-description').textContent=t(network.classification === 'research_estimates_with_assumed_network' ? 'research.chain' : delivered?'chain.delivered':'chain.modeled');
   $('#chain-supplier-editor').hidden=delivered; $('#chain-route-editor').hidden=delivered; $('#chain-offer-editor').hidden=!delivered;
   $('#chain-supplier-rows').innerHTML=network.suppliers.map(row=>`<tr><td>${rowTitle(row)}</td>${['priceUsdPerT','capacityT','totalCapacityT'].map(key=>`<td>${field('suppliers',row,key)}</td>`).join('')}</tr>`).join('');
   $('#chain-route-rows').innerHTML=network.routes.map(row=>`<tr><td>${rowTitle(row)}</td>${['freightUsdPerT','handlingUsdPerT','basisAdjustmentUsdPerT','capacityT','totalCapacityT','leadTimeStages'].map(key=>`<td>${field('routes',row,key)}</td>`).join('')}</tr>`).join('');
@@ -53,7 +59,7 @@ function renderResult() {
   $('#chain-result-strategy').textContent=t(strategy==='baseline'?'chain.baseline':'chain.optimized');
   const c=data.costBreakdown;
   const items=[['productCost',c.procurementUsd],['transportCost',(c.freightUsd||0)+(c.handlingUsd||0)],['stockCost',c.holdingUsd],['intoPlaneCost',c.intoPlaneUsd],['adjustmentCost',(c.basisAdjustmentUsd||0)+(c.taxAdjustmentUsd||0)],['deliveredCost',c.deliveredQuoteUsd],['totalCost',c.totalUsd]];
-  $('#chain-cost-breakdown').innerHTML=items.filter(([key,value])=>key==='totalCost'||Math.abs(value||0)>1e-8||key===(data.mode==='delivered'?'deliveredCost':'productCost')).map(([key,value])=>`<div class="${key==='totalCost'?'chain-cost-total':''}" data-chain-cost="${key}"><span>${t('chain.'+key)}</span><strong>${money(value||0)}</strong></div>`).join('');
+  $('#chain-cost-breakdown').innerHTML=items.filter(([key,value])=>key==='totalCost'||Math.abs(value||0)>1e-8||key===(data.mode==='delivered'?'deliveredCost':'productCost')).map(([key,value])=>`<div class="${key==='totalCost'?'chain-cost-total':''}" data-chain-cost="${key}"><span>${t(key === 'deliveredCost' && network?.classification === 'research_estimates_with_assumed_network' ? 'research.cost' : 'chain.'+key)}</span><strong>${money(value||0)}</strong></div>`).join('');
   $('#chain-flow-rows').innerHTML=data.shipments.length?data.shipments.map(row=>`<tr><td>${esc(label([...(network?.suppliers||[]),...(network?.deliveredOffers||[])].find(s=>s.id===row.supplierId)?.label)||row.supplierId||t('chain.quoteSupplier'))}</td><td>${esc(row.airport)}</td><td>${row.departureStage}</td><td>${row.arrivalStage}</td><td>${number(row.quantityT)}</td><td>${money(row.costUsd)}</td></tr>`).join(''):`<tr><td colspan="6">${t('chain.noFlow')}</td></tr>`;
   $('#chain-inventory-rows').innerHTML=data.airportInventory.map(row=>`<tr data-stock-airport="${esc(row.airport)}" data-stock-stage="${row.stage}"><th>${esc(row.airport)}</th><td>${row.stage}</td><td>${number(row.openingT)}</td><td>${number(row.arrivalsT)}</td><td>${number(row.upliftT)}</td><td>${number(row.closingT)}</td></tr>`).join('');
 }
@@ -95,6 +101,7 @@ export function initIntegratedView(doc = document) {
     }
     if(event.detail.source==='user-edit')refreshControlValues(); else renderInputs();
   });
+  document.addEventListener('routeexamplereset', () => { pending.clear(); resetIntegratedNetwork(); error=false; changed=false; renderInputs(); });
   document.addEventListener('integratedresultchange',event=>{result=event.detail.result;strategy=event.detail.strategy||'optimized';renderResult();});
   document.addEventListener('languagechange',()=>{renderInputs();renderResult();});
 }

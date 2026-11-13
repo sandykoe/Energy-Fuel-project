@@ -77,7 +77,7 @@ async function mount(t, { preset = null, reducedMotion = false, language = "en",
   Object.defineProperty(document.querySelector("#flight-date"), "validity", {
     value: { valid: true },
   });
-  for (const [id, initial] of [["aircraft", "widebody"], ["scenario-preset", "global"], ["map-scope", "global"]]) {
+  for (const [id, initial] of [["aircraft", "widebody"], ["scenario-preset", "global"], ["map-scope", "global"], ["airport-set", "all"], ["research-case", "base"]]) {
     let value = initial;
     Object.defineProperty(document.querySelector(`#${id}`), "value", {
       get: () => value, set: next => { value = String(next); }, configurable: true,
@@ -168,7 +168,7 @@ test("initial model is an empty route builder with no computed result or autopla
  assert.equal($('[data-leg="0"][data-key="to"]').value||'', '');
  assert.equal(document.querySelector('#animated-plane'),null);
  assert.equal(document.querySelectorAll('.route-path').length,0);
- assert.equal(document.querySelectorAll('.map-airport').length,67);
+ assert.equal(document.querySelectorAll('.map-airport').length,101);
  assert.equal($('#savings').textContent,'—');assert.equal($('#download-plan').disabled,true);
  assert.equal($('#motion-toggle').disabled,true);
  assert.doesNotThrow(()=>ui.click('#fit-route'));
@@ -314,4 +314,69 @@ test("invalid route guidance translates completely when the language changes",as
  document.dispatchEvent(new window.CustomEvent('scenarioassumptionschange',{detail:{options:{aircraft:{routeFactor:0.5}}}}));calculate();
  assert.equal($('#model-error').textContent,'无法生成第 1 航段的参数，请检查机型与价格假设。');
  click('#language-en');assert.equal($('#model-error').textContent,'Unable to generate inputs for leg 1. Check the aircraft and price assumptions.');
+});
+
+test('research examples load together, export provenance and invalidate on a case change',async t=>{
+ const {$,fire,click,calculate,document}=await mount(t,{preset:'short-haul',solve:false});
+ assert.equal($('#mode-research').getAttribute('aria-pressed'),'true');
+ assert.equal($('#aircraft').value,'narrowbody');
+ assert.equal(Number($('#initial-fuel').value),4);
+ assert.equal($('#savings').textContent,'—');
+ assert.equal(Number($('[data-leg="0"][data-key="priceUsdPerT"]').value),1439.5);
+ assert.ok($('[data-leg="0"][data-key="priceUsdPerT"]').hasAttribute('readonly'));
+ calculate();
+ assert.equal($('#savings-percent').textContent,'↓ 9.3%');
+ assert.equal($('#research-sensitivity').hidden,false);
+ assert.match($('#research-sensitivity').textContent,/-\$866/);
+ assert.match($('#chain-offer-editor summary').textContent,/Research-priced/);
+ assert.doesNotMatch($('#chain-offer-editor summary').textContent,/supplier offers/i);
+ let blob;
+ t.mock.method(URL,'createObjectURL',value=>{blob=value;return 'blob:research-export';});
+ t.mock.method(URL,'revokeObjectURL',()=>{});
+ click('#download-plan');
+ const exported=JSON.parse(await blob.text());
+ assert.equal(exported.priceStatus,'research-estimates');
+ assert.equal(exported.research.priceCase,'base');
+ assert.equal(exported.researchSensitivity.cases.length,3);
+ assert.equal(exported.input.supplyChain.classification,'research_estimates_with_assumed_network');
+ $('#research-case').value='low';fire('#research-case','change');
+ assert.equal($('#download-plan').disabled,true);
+ assert.equal($('#research-sensitivity').hidden,true);
+ calculate();assert.match($('#savings-percent').textContent,/5\.5%/);
+ click('#language-zh');assert.equal($('#mode-research').textContent,'研究估价');
+ assert.match($('#example-description').textContent,/新加坡/);
+ assert.match($('#research-sensitivity').textContent,/同组价格同步变化/);
+ assert.equal(document.querySelectorAll('.map-airport').length,50);
+});
+
+test('airport filtering preserves solved routes and missing research prices never fall back',async t=>{
+ const {$,fire,calculate,setRoute,click,document}=await mount(t,{preset:'short-haul'});
+ const previous=$('#savings').textContent;
+ $('#airport-set').value='EU';fire('#airport-set','change');
+ assert.equal(document.querySelectorAll('.map-airport').length,12);
+ assert.equal($('#route-caption').textContent,'SIN → CGK → SIN');
+ assert.equal($('#savings').textContent,previous);
+ assert.equal($('#download-plan').disabled,false);
+ assert.ok(document.querySelector('[data-airport="SIN"]'));
+ $('#airport-set').value='all';fire('#airport-set','change');
+ click('#aircraft');$('#aircraft').value='widebody';fire('#aircraft','change');
+ setRoute(['LHR','DXB']);calculate();
+ assert.match($('#model-error').textContent,/LHR has no research price/);
+ assert.equal($('[data-leg="0"][data-key="priceUsdPerT"]').value,'');
+ assert.equal($('#download-plan').disabled,true);
+});
+
+test('example loading clears pending supply edits and a fictional shortage does not leak into another example',async t=>{
+ const {$,fire,calculate}=await mount(t,{preset:'short-haul'});
+ const cap='[data-chain-group="deliveredOffers"][data-chain-id="offer:SIN"][data-chain-key="capacityT"]';
+ $(cap).value='0';fire(cap,'input');
+ $('#scenario-preset').value='short-haul';fire('#load-example','click');calculate();
+ assert.equal($('#savings-percent').textContent,'↓ 9.3%');
+ $('#scenario-preset').value='supply-interruption';fire('#load-example','click');calculate();
+ assert.equal(Number($('[data-leg="1"][data-key="maxUpliftT"]').value),0);
+ assert.equal($('#savings-percent').textContent,'Baseline infeasible');
+ assert.equal($('#savings').textContent,'—');
+ $('#scenario-preset').value='small-spread';fire('#load-example','click');calculate();
+ assert.equal($('#savings-percent').textContent,'↓ 0.0%');
+ assert.equal(Number($('[data-leg="1"][data-key="maxUpliftT"]').value),120);
 });

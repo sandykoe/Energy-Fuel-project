@@ -12,6 +12,17 @@
     "license": "Public Domain",
     "snapshotMethod": "Unmodified CSV fields for the selected scheduled-service IATA records, in declared display order."
   },
+  "supplementalSource": {
+    "sourceUrl": "https://ourairports.com/data/",
+    "license": "Public Domain",
+    "upstreamSha256": "1aab80ccfa203a0d02476c16ac282d9e787cf3d08700d7365c5c5502a0db8ba7",
+    "importedOn": "2026-11-14",
+    "observedAt": null,
+    "snapshotNote": "Retained OurAirports CSV from the local workspace; original retrieval time not recorded. Coordinates only; no airport fuel prices or capacity implied.",
+    "geographicAdjustment": "SAW and AYT are classified as geographic Asia; OurAirports country-level continent classification for Türkiye is Europe.",
+    "snapshot": "airport-extensions.json",
+    "snapshotSha256": "d6be29aa54acd7b6caf4355c1b8d9d7ccf5039c3b55b7b734f995f289bc6ca52"
+  },
   "mapSource": {
     "sourceUrl": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson",
     "snapshot": "ne_110m_land.geojson.gz",
@@ -21,8 +32,8 @@
     "license": "Public Domain"
   },
   "selection": {
-    "count": 67,
-    "rule": "Curated major-airport navigation sample across six inhabited continents, retaining the original 17 East Asian workspace airports.",
+    "count": 101,
+    "rule": "Union of the original 67-airport global sample, the 2024 East/Southeast Asia Top 50 directory and the November 2026 research dataset's geographic-Asia Top 50. This union is not a worldwide traffic ranking.",
     "trafficRanking": false,
     "originalCodes": [
       "PEK",
@@ -42,6 +53,75 @@
       "NGO",
       "FUK",
       "CTS"
+    ],
+    "globalSampleCodes": [
+      "PEK",
+      "PKX",
+      "PVG",
+      "SHA",
+      "CAN",
+      "SZX",
+      "HKG",
+      "TPE",
+      "ICN",
+      "GMP",
+      "PUS",
+      "HND",
+      "NRT",
+      "KIX",
+      "NGO",
+      "FUK",
+      "CTS",
+      "SIN",
+      "BKK",
+      "KUL",
+      "CGK",
+      "DEL",
+      "BOM",
+      "DXB",
+      "DOH",
+      "AUH",
+      "IST",
+      "LHR",
+      "CDG",
+      "FRA",
+      "AMS",
+      "MAD",
+      "JFK",
+      "EWR",
+      "ATL",
+      "ORD",
+      "DFW",
+      "LAX",
+      "SFO",
+      "SEA",
+      "YYZ",
+      "YVR",
+      "MEX",
+      "GRU",
+      "SCL",
+      "JNB",
+      "CPT",
+      "ADD",
+      "NBO",
+      "CAI",
+      "SYD",
+      "MEL",
+      "AKL",
+      "HNL",
+      "MNL",
+      "HAN",
+      "SGN",
+      "CMB",
+      "DAC",
+      "RUH",
+      "DME",
+      "WAW",
+      "FCO",
+      "ZRH",
+      "EZE",
+      "BOG",
+      "LIM"
     ]
   },
   "labels": "Original 17 airport names retained in Chinese; additional airport names and country/continent codes from OurAirports; Chinese city display labels are editorial translations.",
@@ -667,6 +747,312 @@
       "continent": "SA",
       "lon": -77.114305,
       "lat": -12.0219
+    },
+    {
+      "code": "TFU",
+      "name": "Chengdu Tianfu International Airport",
+      "city": "成都",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 104.441284,
+      "lat": 30.31252
+    },
+    {
+      "code": "JED",
+      "name": "King Abdulaziz International Airport",
+      "city": "吉达",
+      "region": "SA",
+      "continent": "AS",
+      "lon": 39.157436,
+      "lat": 21.680241
+    },
+    {
+      "code": "HGH",
+      "name": "Hangzhou Xiaoshan International Airport",
+      "city": "杭州",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 120.428865,
+      "lat": 30.23609
+    },
+    {
+      "code": "CKG",
+      "name": "Chongqing Jiangbei International Airport",
+      "city": "重庆",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 106.651895,
+      "lat": 29.712254
+    },
+    {
+      "code": "KMG",
+      "name": "Kunming Changshui International Airport",
+      "city": "昆明",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 102.936743,
+      "lat": 25.110313
+    },
+    {
+      "code": "XIY",
+      "name": "Xi'an Xianyang International Airport",
+      "city": "西安",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 108.762385,
+      "lat": 34.442207
+    },
+    {
+      "code": "SAW",
+      "name": "Istanbul Sabiha Gökçen International Airport",
+      "city": "伊斯坦布尔",
+      "region": "TR",
+      "continent": "AS",
+      "lon": 29.3092,
+      "lat": 40.898602
+    },
+    {
+      "code": "BLR",
+      "name": "Kempegowda International Airport Bengaluru",
+      "city": "班加罗尔",
+      "region": "IN",
+      "continent": "AS",
+      "lon": 77.706299,
+      "lat": 13.1979
+    },
+    {
+      "code": "AYT",
+      "name": "Antalya International Airport",
+      "city": "安塔利亚",
+      "region": "TR",
+      "continent": "AS",
+      "lon": 30.800501,
+      "lat": 36.898701
+    },
+    {
+      "code": "CTU",
+      "name": "Chengdu Shuangliu International Airport",
+      "city": "成都",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 103.945966,
+      "lat": 30.558257
+    },
+    {
+      "code": "DMK",
+      "name": "Don Mueang International Airport",
+      "city": "曼谷",
+      "region": "TH",
+      "continent": "AS",
+      "lon": 100.607002,
+      "lat": 13.9126
+    },
+    {
+      "code": "NKG",
+      "name": "Nanjing Lukou International Airport",
+      "city": "南京",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 118.865949,
+      "lat": 31.735032
+    },
+    {
+      "code": "WUH",
+      "name": "Wuhan Tianhe International Airport",
+      "city": "武汉",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 114.213723,
+      "lat": 30.774798
+    },
+    {
+      "code": "HYD",
+      "name": "Rajiv Gandhi International Airport",
+      "city": "海得拉巴",
+      "region": "IN",
+      "continent": "AS",
+      "lon": 78.429855,
+      "lat": 17.231318
+    },
+    {
+      "code": "CSX",
+      "name": "Changsha Huanghua International Airport",
+      "city": "长沙",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 113.220001,
+      "lat": 28.189199
+    },
+    {
+      "code": "CJU",
+      "name": "Jeju International Airport",
+      "city": "济州",
+      "region": "KR",
+      "continent": "AS",
+      "lon": 126.492548,
+      "lat": 33.512058
+    },
+    {
+      "code": "XMN",
+      "name": "Xiamen Gaoqi International Airport",
+      "city": "厦门",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 118.127454,
+      "lat": 24.543889
+    },
+    {
+      "code": "CGO",
+      "name": "Zhengzhou Xinzheng International Airport",
+      "city": "郑州",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 113.849165,
+      "lat": 34.526497
+    },
+    {
+      "code": "URC",
+      "name": "Ürümqi Tianshan International Airport",
+      "city": "乌鲁木齐",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 87.479372,
+      "lat": 43.913584
+    },
+    {
+      "code": "TAO",
+      "name": "Qingdao Jiaodong International Airport",
+      "city": "青岛",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 120.088171,
+      "lat": 36.361953
+    },
+    {
+      "code": "HAK",
+      "name": "Haikou Meilan International Airport",
+      "city": "海口",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 110.459,
+      "lat": 19.9349
+    },
+    {
+      "code": "SHE",
+      "name": "Shenyang Taoxian International Airport",
+      "city": "沈阳",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 123.483668,
+      "lat": 41.6398
+    },
+    {
+      "code": "HRB",
+      "name": "Harbin Taiping International Airport",
+      "city": "哈尔滨",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 126.25,
+      "lat": 45.623402
+    },
+    {
+      "code": "KWE",
+      "name": "Guiyang Longdongbao International Airport",
+      "city": "贵阳",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 106.80402,
+      "lat": 26.541805
+    },
+    {
+      "code": "OKA",
+      "name": "Naha International Airport",
+      "city": "冲绳",
+      "region": "JP",
+      "continent": "AS",
+      "lon": 127.639804,
+      "lat": 26.192437
+    },
+    {
+      "code": "SYX",
+      "name": "Sanya Phoenix International Airport",
+      "city": "三亚",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 109.412003,
+      "lat": 18.3029
+    },
+    {
+      "code": "TSN",
+      "name": "Tianjin Binhai International Airport",
+      "city": "天津",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 117.346000671,
+      "lat": 39.124401092499994
+    },
+    {
+      "code": "TNA",
+      "name": "Jinan Yaoqiang International Airport",
+      "city": "济南",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 117.216003,
+      "lat": 36.857201
+    },
+    {
+      "code": "DLC",
+      "name": "Dalian Zhoushuizi International Airport",
+      "city": "大连",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 121.538477,
+      "lat": 38.965719
+    },
+    {
+      "code": "CGQ",
+      "name": "Changchun Longjia International Airport",
+      "city": "长春",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 125.684998,
+      "lat": 43.996201
+    },
+    {
+      "code": "HKT",
+      "name": "Phuket International Airport",
+      "city": "普吉岛",
+      "region": "TH",
+      "continent": "AS",
+      "lon": 98.3174,
+      "lat": 8.113257
+    },
+    {
+      "code": "LHW",
+      "name": "Lanzhou Zhongchuan International Airport",
+      "city": "兰州",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 103.620003,
+      "lat": 36.515202
+    },
+    {
+      "code": "FOC",
+      "name": "Fuzhou Changle International Airport",
+      "city": "福州",
+      "region": "CN",
+      "continent": "AS",
+      "lon": 119.672524,
+      "lat": 25.929254
+    },
+    {
+      "code": "ITM",
+      "name": "Osaka Itami International Airport",
+      "city": "大阪",
+      "region": "JP",
+      "continent": "AS",
+      "lon": 135.440829,
+      "lat": 34.780853
     }
   ]
 }

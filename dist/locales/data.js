@@ -8,12 +8,12 @@ export const dataMessages = {
     "zh": "航油数据"
   },
   "data.badge": {
-    "en": "Scenario data",
-    "zh": "情景数据"
+    "en": "Planning datasets",
+    "zh": "规划数据集"
   },
   "data.intro": {
-    "en": "A complete starting dataset for 67 airports. Prices follow the same formula, and flight inputs follow the route and aircraft you choose. Change the assumptions here to update your model.",
-    "zh": "这里提供 67 个机场的完整起始数据。机场价格采用同一套计算规则，飞行参数随你选择的航线和机型生成。调整下方假设后，模型会同步更新。"
+    "en": "Inspect November 2026 research estimates for 50 Asian airports, alongside generated assumptions for all 101 airports. Each dataset keeps its own sources, methods and limitations.",
+    "zh": "查看 50 个亚洲机场的 2026 年 11 月研究估价，以及全部 101 个机场的生成假设。各数据集分别保留来源、方法与局限。"
   },
   "data.step1": {
     "en": "01 / Shared assumptions",
@@ -60,8 +60,8 @@ export const dataMessages = {
     "zh": "默认每次到访最多供应 120 吨，可以下调来测试供应受限的影响。区域参照机场用于计算距离，区域差价是这套情景中明确设定的参数。"
   },
   "data.step2": {
-    "en": "02 / Airport dataset",
-    "zh": "02 / 机场数据"
+    "en": "02 / Generated airport prices",
+    "zh": "02 / 生成机场价格"
   },
   "data.airports": {
     "en": "See how each price is built",
@@ -152,8 +152,8 @@ export const dataMessages = {
     "zh": "机场地理信息"
   },
   "sources.geoNow": {
-    "en": "Coordinates for 67 airports, sourced from OurAirports. The map uses Natural Earth boundaries.",
-    "zh": "67 个机场的坐标来自 OurAirports，地图边界来自 Natural Earth。"
+    "en": "Coordinates for 101 airports, sourced from OurAirports. The map uses Natural Earth boundaries.",
+    "zh": "101 个机场的坐标来自 OurAirports，地图边界来自 Natural Earth。"
   },
   "sources.geoNext": {
     "en": " provides a public starting point. Confirm the airport and operational routing against the flight plan.",
@@ -252,8 +252,8 @@ export const dataMessages = {
     "zh": "让假设和结果一起保存"
   },
   "sources.packageText": {
-    "en": "The dataset download includes all 67 airport records, price components, aircraft profiles, formulas and replacement sources. The model export records the route, inputs and calculated fuel plan so the result can be rerun.",
-    "zh": "数据下载包含全部 67 个机场、价格构成、机型参数、公式和后续数据来源。模型导出则保留航线、输入和计算出的加油方案，方便复算。"
+    "en": "The dataset download includes all 101 airport records, price components, aircraft profiles, formulas and replacement sources. The model export records the route, inputs and calculated fuel plan so the result can be rerun.",
+    "zh": "数据下载包含全部 101 个机场、价格构成、机型参数、公式和后续数据来源。模型导出则保留航线、输入和计算出的加油方案，方便复算。"
   },
   "sources.inspect": {
     "en": "Inspect the dataset",

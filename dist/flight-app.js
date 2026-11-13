@@ -1,3 +1,7 @@
+import { RESEARCH_PRICES, RESEARCH_CASES, researchRecord, researchCalibration, researchPrice, researchProvenance, adverseResearchSpread } from './research-prices.js';
+import { AIRPORT_SETS, airportsInSet, visibleAirports } from './airport-sets.js';
+import { ROUTE_EXAMPLES } from './route-examples.js';
+import { buildIntegratedNetwork } from './integrated-data.js';
 import { mapMarkup, project } from "./world-map.js";
 import { airportData } from "./global-airports.js";
 import { airportLabel } from "./airport-labels.js";
@@ -31,7 +35,7 @@ const escape = (value) =>
   );
 const money = (value) =>
   Number.isFinite(value)
-    ? "$" + value.toLocaleString("en-US", { maximumFractionDigits: 0 })
+    ? value.toLocaleString("en-US", { style:"currency", currency:"USD", maximumFractionDigits: 0 })
     : "—";
 const tonnes = (value) => (Number.isFinite(value) ? value.toFixed(2) : "—");
 // The numerical and CSV engines retain stable diagnostic strings. Translate
@@ -116,7 +120,9 @@ const airports = Object.fromEntries(airportData.map((a) => [a.code, a]));
 let aircraftKey = "widebody";
 let scenarioOptions = getScenarioOptions();
 let airportPriceOverrides = {};
-let preset = "global";
+let preset = "short-haul";
+let airportSet = "all", researchCase = "base";
+let sensitivity = null;
 const emptyLeg = (from = "", to = "") => ({ from, to, overrides: {}, derivation: null });
 const profileAircraft = () => {
   const profile = AIRCRAFT_PROFILES[aircraftKey];
@@ -131,9 +137,10 @@ let currentErrors = [];
 let loadedExample = null;
 function routeCodes() { return [input.legs[0]?.from || "", ...input.legs.map(leg => leg.to || "")]; }
 function emitScenario() {
+  input.researchProvenance = mode === 'research' ? researchProvenance(routeCodes(), researchCase) : undefined;
   syncIntegratedNetwork(input, { scenarioOptions, priceMode: mode });
   document.dispatchEvent(new CustomEvent("scenariodatachange", { detail: {
-    aircraftKey, input: structuredClone(input), priceMode: mode,
+    aircraftKey, input: structuredClone(input), priceMode: mode, airportSet, researchCase,
     airportPriceOverrides: { ...airportPriceOverrides }, options: structuredClone(scenarioOptions), source: "flight-model",
   } }));
 }
@@ -144,8 +151,7 @@ function rebuildRoute(stops, { resetOverrides = true } = {}) {
     if (!airports[from] || !airports[to] || from === to) return emptyLeg(from, to);
     try {
       const generated = deriveLeg(from, to, aircraftKey, scenarioOptions);
-      return { ...generated, priceUsdPerT: mode === "quotes" ? activeQuote(from)?.priceUsdPerT
-        : airportPriceOverrides[from] ?? generated.priceUsdPerT, overrides: {} };
+      return { ...generated, priceUsdPerT: priceFor(from), priceClassification: mode, overrides: {} };
     } catch (error) {
       return {...emptyLeg(from,to), derivationError:error.message};
     }
@@ -187,12 +193,13 @@ function activeQuote(code) {
   return quoteForAirport(quotes, code, $("#flight-date").value);
 }
 function priceFor(code) {
+  if (mode === "research") return researchPrice(code, researchCase);
   return mode === "demo"
     ? (airportPriceOverrides[code] ?? (airports[code] ? airportScenario(code, scenarioOptions).priceUsdPerT : undefined))
     : activeQuote(code)?.priceUsdPerT;
 }
 function airportOptions(selected) {
-  return `<option value="">${escape(t("Choose airport"))}</option>` + airportData
+  return `<option value="">${escape(t("Choose airport"))}</option>` + visibleAirports(airportSet, routeCodes())
     .map(
       (a) =>
         `<option value="${a.code}" ${a.code === selected ? "selected" : ""}>${a.code} · ${escape(airportLabel(a, getLanguage()).name)}</option>`,
@@ -218,7 +225,7 @@ function renderForm({ focusLeg, focusKey } = {}) {
       : active?.dataset?.remove !== undefined ? { leg: Math.min(Number(active.dataset.remove), input.legs.length - 1), key: "to" } : null;
   const value = number => Number.isFinite(number) ? number : "";
   $("#leg-rows").innerHTML = input.legs.map((leg, i) => {
-    return `<tr><td>${String(i + 1).padStart(2, "0")}</td><td><div class="leg-route"><select data-leg="${i}" data-key="from" aria-label="${escape(t("Leg {{leg}} origin airport", {leg:i+1}))}" ${i > 0 ? "disabled" : ""}>${airportOptions(leg.from)}</select><span aria-hidden="true">→</span><select data-leg="${i}" data-key="to" aria-label="${escape(t("Leg {{leg}} destination airport", {leg:i+1}))}">${airportOptions(leg.to)}</select></div><small class="leg-derivation">${escape(legDerivationLabel(leg))}</small></td><td><input data-leg="${i}" data-key="priceUsdPerT" aria-label="${escape(t("Leg {{leg}} price, USD per tonne",{leg:i+1}))}" type="number" min="0" step="any" value="${value(leg.priceUsdPerT)}" ${mode === "quotes" ? "readonly" : ""} placeholder="—"></td><td><input data-leg="${i}" data-key="baseBurnT" aria-label="${escape(t("Leg {{leg}} base burn, tonnes",{leg:i+1}))}" type="number" min="0" step="any" value="${value(leg.baseBurnT)}" required></td><td class="uplift-result" data-uplift="${i}">—</td><td class="landing-result" data-landing="${i}">—</td><td><div class="route-row-actions"><button type="button" data-move-stop="${i}" data-direction="up" aria-label="${escape(t("Move stop {{stop}} earlier",{stop:i+1}))}" ${i===0 ? "disabled" : ""}><span aria-hidden="true">↑</span></button><button type="button" data-move-stop="${i}" data-direction="down" aria-label="${escape(t("Move stop {{stop}} later",{stop:i+1}))}" ${i===input.legs.length-1 ? "disabled" : ""}><span aria-hidden="true">↓</span></button><button type="button" class="remove-leg" data-remove="${i}" aria-label="${escape(t("Remove stop {{stop}}",{stop:i+1}))}" ${input.legs.length<=1 ? "disabled" : ""}><span aria-hidden="true">×</span></button></div></td></tr>`;
+    return `<tr><td>${String(i + 1).padStart(2, "0")}</td><td><div class="leg-route"><select data-leg="${i}" data-key="from" aria-label="${escape(t("Leg {{leg}} origin airport", {leg:i+1}))}" ${i > 0 ? "disabled" : ""}>${airportOptions(leg.from)}</select><span aria-hidden="true">→</span><select data-leg="${i}" data-key="to" aria-label="${escape(t("Leg {{leg}} destination airport", {leg:i+1}))}">${airportOptions(leg.to)}</select></div><small class="leg-derivation">${escape(legDerivationLabel(leg))}</small></td><td><input data-leg="${i}" data-key="priceUsdPerT" aria-label="${escape(t("Leg {{leg}} price, USD per tonne",{leg:i+1}))}" type="number" min="0" step="any" value="${mode === "research" && Number.isFinite(leg.priceUsdPerT) ? leg.priceUsdPerT.toFixed(2) : value(leg.priceUsdPerT)}" ${mode !== "demo" ? "readonly" : ""} placeholder="—">${mode === "research" ? `<small class="research-price-tag">${escape(researchRecord(leg.from) ? t("research.priceTag", {case:t("research."+researchCase)}) : t("research.missing"))}</small>` : ""}</td><td><input data-leg="${i}" data-key="baseBurnT" aria-label="${escape(t("Leg {{leg}} base burn, tonnes",{leg:i+1}))}" type="number" min="0" step="any" value="${value(leg.baseBurnT)}" required></td><td class="uplift-result" data-uplift="${i}">—</td><td class="landing-result" data-landing="${i}">—</td><td><div class="route-row-actions"><button type="button" data-move-stop="${i}" data-direction="up" aria-label="${escape(t("Move stop {{stop}} earlier",{stop:i+1}))}" ${i===0 ? "disabled" : ""}><span aria-hidden="true">↑</span></button><button type="button" data-move-stop="${i}" data-direction="down" aria-label="${escape(t("Move stop {{stop}} later",{stop:i+1}))}" ${i===input.legs.length-1 ? "disabled" : ""}><span aria-hidden="true">↓</span></button><button type="button" class="remove-leg" data-remove="${i}" aria-label="${escape(t("Remove stop {{stop}}",{stop:i+1}))}" ${input.legs.length<=1 ? "disabled" : ""}><span aria-hidden="true">×</span></button></div></td></tr>`;
   }).join("");
   const fields = [["taxiBurnT","Taxi burn, tonnes"],["reserveT","Arrival reserve, tonnes"],["carryBurnRate","Extra-weight burn, percent"],["zeroFuelWeightT","Zero-fuel weight, tonnes"],["maxUpliftT","Uplift limit, tonnes"]];
   $("#performance-rows").innerHTML = input.legs.map((leg,i) => `<tr><td>${leg.from || "—"} → ${leg.to || "—"}</td>${fields.map(([key,label])=>`<td><input type="number" data-leg="${i}" data-key="${key}" aria-label="${escape(t("Leg {{leg}} {{field}}",{leg:i+1,field:t(label)}))}" min="0" ${key==="carryBurnRate"?'max="99.99"':""} step="any" value="${value(key==="carryBurnRate"?leg[key]*100:leg[key])}" ${key==="maxUpliftT"?'placeholder="—"':"required"}></td>`).join("")}</tr>`).join("");
@@ -570,6 +577,8 @@ function setDirty(message = "Inputs changed. Recalculate to update the plan.") {
   stopPlayback();
   dirty = true;
   result = null;
+  sensitivity = null;
+  if ($("#research-sensitivity")) $("#research-sensitivity").hidden = true;
   emitIntegratedResult();
   $("#plan-status").textContent = t(message);
   $("#savings").textContent = "—";
@@ -624,6 +633,9 @@ function calculate() {
       if (!quote)
         errors.push({key:"{{airport}} has no valid quotation for this date.",params:{airport:leg.from||t("Origin")}});
       else leg.priceUsdPerT = quote.priceUsdPerT;
+    } else if (mode === 'research') {
+      leg.priceUsdPerT = researchPrice(leg.from, researchCase);
+      if (!Number.isFinite(leg.priceUsdPerT)) errors.push({key:'research.missingError',params:{airport:leg.from}});
     } else if (!Number.isFinite(leg.priceUsdPerT)) {
       errors.push({key:"Enter a price for {{airport}}.",params:{airport:leg.from||t("Origin")}});
     }
@@ -643,6 +655,7 @@ function calculate() {
     return showError(message ? [message] : [...result.errors,...result.diagnostics]);
   }
   dirty = false; currentErrors = [];
+  sensitivity = mode === "research" ? calculateResearchSensitivity() : null;
   renderResult();
 }
 function emitIntegratedResult() {
@@ -652,7 +665,7 @@ function renderResult({ rebuildMap = true } = {}) {
   if (!result?.feasible) return;
   $("#model-error").hidden = true;
   $("#savings-label").textContent =
-    mode === "demo" ? "Joint supply-cost saving · scenario" : "Joint supply-cost saving · user quotes";
+    mode === "research" ? t("research.savings") : mode === "demo" ? "Joint supply-cost saving · scenario" : "Joint supply-cost saving · user quotes";
   $("#savings").textContent = money(result.savingsUsd);
   $("#savings-percent").textContent = Number.isFinite(result.savingsPercent)
     ? `↓ ${result.savingsPercent.toFixed(1)}%`
@@ -683,7 +696,7 @@ function renderResult({ rebuildMap = true } = {}) {
   $("#play-route").disabled =
     strategy === "baseline" && !result.baseline?.feasible;
   $("#plan-status").textContent = t("Calculated");
-  $("#result-disclosure").textContent = t(mode === "demo" ? "Scenario data · editable assumptions" : "Imported prices · modeled performance");
+  $("#result-disclosure").textContent = t(mode === "research" ? "research.disclosure" : mode === "demo" ? "Scenario data · editable assumptions" : "Imported prices · modeled performance");
   let candidate = result.legs.findIndex(
     (l, i) =>
       result.baseline?.feasible &&
@@ -703,6 +716,7 @@ function renderResult({ rebuildMap = true } = {}) {
     $(`[data-landing="${i}"]`).textContent = tonnes(leg.landingFuelT);
   });
   renderStrategies();
+  renderResearchSensitivity();
   if (rebuildMap) renderMap();
 
   if ($("#motion-detail")) $("#motion-detail").hidden = false;
@@ -770,7 +784,7 @@ function airportLabels(a, active) {
   if (!show) return "";
   const [dx, dy] = mapScope === "eastasia" ? (labelOffsets[a.code] || [10, -8]) : [10, -8];
   const price = priceFor(a.code);
-  return `<text x="${dx * mapUiScale}" y="${dy * mapUiScale}" data-label-x="${dx}" data-label-y="${dy}" class="airport-code">${a.code} <tspan class="airport-city" data-label-dx="4" dx="${4 * mapUiScale}">${airportCity(a)}</tspan></text>${active ? `<text x="${dx * mapUiScale}" y="${(dy + 19) * mapUiScale}" data-label-x="${dx}" data-label-y="${dy + 19}" class="airport-price">${Number.isFinite(price) ? "$" + Math.round(price).toLocaleString("en-US") + `<tspan class="airport-city"> /t</tspan>` : mode === "demo" ? t("Price not entered") : t("Quote unavailable")}</text>` : ""}`;
+  return `<text x="${dx * mapUiScale}" y="${dy * mapUiScale}" data-label-x="${dx}" data-label-y="${dy}" class="airport-code">${a.code} <tspan class="airport-city" data-label-dx="4" dx="${4 * mapUiScale}">${airportCity(a)}</tspan></text>${active ? `<text x="${dx * mapUiScale}" y="${(dy + 19) * mapUiScale}" data-label-x="${dx}" data-label-y="${dy + 19}" class="airport-price">${Number.isFinite(price) ? "$" + Math.round(price).toLocaleString("en-US") + `<tspan class="airport-city"> /t</tspan>` : mode === "research" ? t("research.missing") : mode === "demo" ? t("Price not entered") : t("Quote unavailable")}</text>` : ""}`;
 }
 function refreshMapLabels() {
   $$(".map-airport").forEach(node => {
@@ -779,7 +793,7 @@ function refreshMapLabels() {
     node.querySelector(".airport-labels").innerHTML = label;
     if (label) {
       node.setAttribute("aria-labelledby", `map-label-${airport.code}`);
-      node.setAttribute("aria-description", `${airportLabel(airport, getLanguage()).name}; ${t(mode === "demo" ? "Scenario data" : "User quote")}`);
+      node.setAttribute("aria-description", `${airportLabel(airport, getLanguage()).name}; ${t(mode === "research" ? "research.mode" : mode === "demo" ? "Scenario data" : "User quote")}`);
     } else node.removeAttribute("aria-labelledby");
   });
 }
@@ -799,26 +813,32 @@ function renderMap({ progress = 0, autoplay = true } = {}) {
       return `<path class="route-halo route-shadow" d="${d}"/><path id="route-${i}" class="route-path" d="${d}"/>${trails}`;
     })
     .join("");
-  const nodes = airportData
+  const nodes = visibleAirports(airportSet, routeCodes())
     .map((a) => {
       const [x, y] = project(a.lon, a.lat),
         active = selected.has(a.code),
         price = priceFor(a.code);
       const label = airportLabels(a, active);
-      return `<g class="map-airport ${active ? "selected" : ""}" data-airport="${a.code}" data-map-x="${x}" data-map-y="${y}" transform="translate(${x},${y})" tabindex="-1" role="button" ${label ? `aria-labelledby="map-label-${a.code}" aria-description="${escape(airportLabel(a, getLanguage()).name)}; ${t(mode === "demo" ? "Scenario data" : "User quote")}"` : ""} aria-label="${escape(Number.isFinite(price) ? t("{{airport}}; {{price}} USD per tonne",{airport:a.code+" "+airportCity(a),price:Math.round(price)}) : t("{{airport}}; quote unavailable",{airport:a.code+" "+airportCity(a)}))}"><circle class="ring" data-base-radius="${active ? 7 : 4}" r="${(active ? 7 : 4) * mapUiScale}"/><circle class="marker" data-base-radius="${active ? 3 : 1.7}" r="${(active ? 3 : 1.7) * mapUiScale}"/>${active ? `<circle class="airport-pulse" data-base-radius="7" r="${7 * mapUiScale}"/>` : ""}<g class="airport-labels" id="map-label-${a.code}">${label}</g></g>`;
+      return `<g class="map-airport ${active ? "selected" : ""}" data-airport="${a.code}" data-map-x="${x}" data-map-y="${y}" transform="translate(${x},${y})" tabindex="-1" role="button" ${label ? `aria-labelledby="map-label-${a.code}" aria-description="${escape(airportLabel(a, getLanguage()).name)}; ${t(mode === "research" ? "research.mode" : mode === "demo" ? "Scenario data" : "User quote")}"` : ""} aria-label="${escape(Number.isFinite(price) ? t("{{airport}}; {{price}} USD per tonne",{airport:a.code+" "+airportCity(a),price:Math.round(price)}) : t("{{airport}}; quote unavailable",{airport:a.code+" "+airportCity(a)}))}"><circle class="ring" data-base-radius="${active ? 7 : 4}" r="${(active ? 7 : 4) * mapUiScale}"/><circle class="marker" data-base-radius="${active ? 3 : 1.7}" r="${(active ? 3 : 1.7) * mapUiScale}"/>${active ? `<circle class="airport-pulse" data-base-radius="7" r="${7 * mapUiScale}"/>` : ""}<g class="airport-labels" id="map-label-${a.code}">${label}</g></g>`;
     })
     .join("");
   $("#flight-map").innerHTML =
     `<defs><radialGradient id="plane-aura"><stop stop-color="#1769aa" stop-opacity=".18"/><stop offset="1" stop-color="#1769aa" stop-opacity="0"/></radialGradient></defs><g class="map-terrain">${mapMarkup()}</g><g class="rotation-routes">${routes}</g><g>${nodes}</g>`;
   $("#flight-map").dataset.scope = mapScope;
+  $("#map-airport-count").textContent = t("airports.count", {count: visibleAirports(airportSet, routeCodes()).length, priced: visibleAirports(airportSet, routeCodes()).filter(a=>researchRecord(a.code)).length});
   $("#flight-map").setAttribute("aria-label", t("Airport map. Use arrow keys to inspect airports; Escape closes details."));
   $("#map-mode").textContent =
-    t(mode === "demo" ? "Scenario data" : "Imported quotations");
+    t(mode === "research" ? "research.mode" : mode === "demo" ? "Scenario data" : "Imported quotations");
   const showAirport = (code) => {
     const a = airports[code],
       quote = activeQuote(code),
       price = priceFor(code);
     $("#airport-tooltip").innerHTML = `<b>${a.code} · ${escape(airportCity(a))}</b><p><strong>${Number.isFinite(price) ? money(price) + " /t" : t("Quote unavailable")}</strong> ${t(mode === "demo" ? "Model price" : "User quote")}</p><p>${mode === "demo" ? t("Base jet + local basis + delivery + fees") : quote ? escape(quote.supplier) + " · " + t("Quote dates: {{from}} to {{to}}",{from:quote.validFrom,to:quote.validUntil}) : t("Import a valid quote")}</p>${mode === "demo" ? `<a href="#fuel-data">${t("Price components")}</a>` : ""}`;
+    if (mode === 'research') {
+      const row = researchRecord(code);
+      const calibration = researchCalibration(code);
+      $('#airport-tooltip').innerHTML = `<b>${a.code} · ${escape(airportCity(a))}</b><p><strong>${row ? money(price) + ' /t' : t('research.missing')}</strong></p>${row ? `<p>${escape(t('research.priceTag', {case:t('research.'+researchCase)}))}</p><p>${escape(calibration.evidence)}</p><a href="#data/research-dataset">${t('research.details')}</a>` : ''}`;
+    }
     $("#airport-tooltip").hidden = false;
   };
   $$(".map-airport").forEach((node) => {
@@ -879,16 +899,61 @@ function changeMode(next) {
   result = null;
   dirty = true;
   mode = next;
+  renderResearchControls();
   $("#mode-demo").classList.toggle("selected", mode === "demo");
   $("#mode-quotes").classList.toggle("selected", mode === "quotes");
   $("#mode-demo").setAttribute("aria-pressed", String(mode === "demo"));
   $("#mode-quotes").setAttribute("aria-pressed", String(mode === "quotes"));
-  for (const leg of input.legs) leg.priceUsdPerT = priceFor(leg.from);
+  for (const leg of input.legs) { leg.priceUsdPerT = priceFor(leg.from); leg.priceClassification = mode; delete leg.overrides?.priceUsdPerT; }
   renderForm();
 
   renderMap();
   setDirty(mode === "quotes" ? "Review imported quotations, then calculate." : "Inputs ready. Calculate your route.");
   emitScenario();
+}
+function renderResearchControls() {
+  $('#mode-research').classList.toggle('selected', mode === 'research');
+  $('#mode-research').setAttribute('aria-pressed', String(mode === 'research'));
+  $('#research-case-control').hidden = mode !== 'research';
+  $('#research-price-note').hidden = mode !== 'research';
+  $('#research-case').value = researchCase;
+}
+function renderExampleDescription() {
+  const example = ROUTE_EXAMPLES.find(item => item.id === preset) || ROUTE_EXAMPLES[0];
+  $('#example-description').textContent = t(example.description);
+  $('#example-defaults').hidden = example.priceMode !== 'research';
+}
+function renderPlanningChoices() {
+  $('#airport-set').innerHTML = AIRPORT_SETS.map(item => `<option value="${item.id}" ${item.id === airportSet ? 'selected' : ''}>${escape(t(item.label))} (${airportsInSet(item.id).length})</option>`).join('');
+  $('#airport-set').value = airportSet;
+  const subset = airportsInSet(airportSet);
+  $('#airport-set-note').textContent = t('airports.count', {count:subset.length, priced:subset.filter(a=>researchRecord(a.code)).length}) + '. ' + t('airports.retained');
+  $('#scenario-preset').innerHTML = ['research','demo'].map(group => `<optgroup label="${escape(t(group === 'research' ? 'examples.researchGroup' : 'examples.generatedGroup'))}">${ROUTE_EXAMPLES.filter(item=>item.priceMode===group).map(item=>`<option value="${item.id}" ${item.id===preset?'selected':''}>${escape(t(item.title))}</option>`).join('')}</optgroup>`).join('');
+  $('#scenario-preset').value = preset;
+  renderExampleDescription();
+}
+function changeAirportSet(next) {
+  if (!AIRPORT_SETS.some(item => item.id === next)) return;
+  airportSet = next;
+  renderPlanningChoices(); renderForm(); renderMap({autoplay:false}); emitScenario();
+}
+function calculateResearchSensitivity() {
+  const overrides = getIntegratedOverrides();
+  const cases = RESEARCH_CASES.map(priceCase => {
+    const candidate = structuredClone(input);
+    for (const leg of candidate.legs) leg.priceUsdPerT = researchPrice(leg.from, priceCase);
+    candidate.researchProvenance = researchProvenance(routeCodes(), priceCase);
+    candidate.supplyChain = buildIntegratedNetwork(candidate, {scenarioOptions, priceMode:'research', overrides});
+    const plan = priceCase === researchCase ? result : optimizeIntegratedRotation(candidate);
+    return {priceCase, feasible:plan.feasible, baselineFeasible:plan.baseline?.feasible ?? false, savingsUsd:plan.savingsUsd ?? null, savingsPercent:plan.savingsPercent ?? null};
+  });
+  return {cases, adverseSpread:adverseResearchSpread(result)};
+}
+function renderResearchSensitivity() {
+  const panel = $('#research-sensitivity');
+  panel.hidden = mode !== 'research' || !sensitivity;
+  if (panel.hidden) return;
+  panel.innerHTML = `<h3>${t('research.sensitivityTitle')}</h3><p>${t('research.sensitivityCopy')}</p><div class="research-case-results">${sensitivity.cases.map(item=>`<div><strong>${t('research.'+item.priceCase)}</strong><span>${!item.feasible?t('research.infeasible'):item.baselineFeasible?money(item.savingsUsd):t('research.noBaseline')}</span><small>${t('research.savingColumn')}</small></div>`).join('')}</div><p>${sensitivity.adverseSpread ? escape(t('research.stress',{saving:money(sensitivity.adverseSpread.savingUsd)})) : t('research.noBaseline')}</p>`;
 }
 function downloadFile(filename, content, type) {
   const url = URL.createObjectURL(new Blob([content], { type }));
@@ -948,7 +1013,7 @@ $("#rotation-form").addEventListener("change", (event) => {
     renderForm(); renderMap();
     setDirty("Route inputs updated. Calculate when ready.");
   } else if (field.id === "flight-date") {
-    for (const leg of input.legs) leg.priceUsdPerT = priceFor(leg.from);
+    for (const leg of input.legs) { leg.priceUsdPerT = priceFor(leg.from); leg.priceClassification = mode; delete leg.overrides?.priceUsdPerT; }
     renderForm(); renderMap(); setDirty("Date updated. Calculate when ready."); emitScenario();
   } else if (field.dataset.key === "priceUsdPerT") { renderMap();  emitScenario(); }
 });
@@ -988,27 +1053,36 @@ $("#add-leg").addEventListener("click", () => {
   setDirty("Choose the next destination."); emitScenario();
 });
 function loadExample(next) {
-  preset = next === "eastasia" ? "eastasia" : "global";
-  loadedExample = preset;
+  const example = ROUTE_EXAMPLES.find(item => item.id === next) || ROUTE_EXAMPLES[0];
+  preset = example.id; loadedExample = preset;
   userPausedMotion = false;
-  aircraftKey = "widebody";
-  input.aircraft = profileAircraft(); input.initialFuelT = 0;
-  $("#aircraft").value = aircraftKey;
-  rebuildRoute(preset === "eastasia" ? ["PVG","ICN","HND","PVG"] : ["SIN","DXB","LHR","JFK","LAX"]);
-  mapScope = preset === "eastasia" ? "eastasia" : "global";
-  Object.assign(mapView,MAP_VIEWS[mapScope]);
-  if ($("#map-scope")) $("#map-scope").value = mapScope;
-  setViewport(mapView); syncAircraftInputs(); renderForm(); renderMap();
-  setDirty("Example loaded. Change any input, then calculate.");
+  aircraftKey = example.aircraft; mode = example.priceMode; researchCase = 'base';
+  airportSet = mode === 'research' ? 'research' : 'all';
+  input.aircraft = profileAircraft(); input.initialFuelT = example.initialFuelT;
+  $('#aircraft').value = aircraftKey;
+  document.dispatchEvent(new CustomEvent('routeexamplereset'));
+  rebuildRoute(example.route);
+  if (mode === 'research') for (const leg of input.legs) {
+    leg.maxUpliftT = leg.from === example.unavailable ? 0 : 120;
+    if (leg.from === example.unavailable) leg.overrides.maxUpliftT = true;
+  }
+  emitScenario();
+  changeMode(mode);
+  mapScope = preset === 'eastasia' ? 'eastasia' : 'global';
+  Object.assign(mapView, mode === 'research' ? fitRouteView(input.legs, airports, project) : MAP_VIEWS[mapScope]);
+  if ($('#map-scope')) $('#map-scope').value = mapScope;
+  renderPlanningChoices(); setViewport(mapView); syncAircraftInputs(); renderForm(); renderMap();
+  setDirty('Example loaded. Change any input, then calculate.');
 }
 function clearRoute() {
   userPausedMotion = false; airportPriceOverrides = {}; loadedExample = null;
+  document.dispatchEvent(new CustomEvent("routeexamplereset"));
   input = {aircraft:profileAircraft(),initialFuelT:0,legs:[emptyLeg()]};
   syncAircraftInputs(); renderForm(); renderMap();
   setDirty("Choose your origin and destination."); emitScenario();
 }
 $("#reset-plan").addEventListener("click", clearRoute);
-$("#scenario-preset")?.addEventListener("change", event => { preset = event.target.value; });
+$("#scenario-preset")?.addEventListener("change", event => { preset = event.target.value; renderExampleDescription(); });
 $("#load-example")?.addEventListener("click", () => loadExample($("#scenario-preset")?.value));
 $("#map-scope")?.addEventListener("change", (event) => {
   mapScope = event.target.value === "eastasia" ? "eastasia" : "global";
@@ -1021,6 +1095,13 @@ $("#fit-route")?.addEventListener("click", () => {
   const completeLegs = input.legs.filter(leg => airports[leg.from] && airports[leg.to] && leg.from !== leg.to);
   animateViewport(completeLegs.length ? fitRouteView(completeLegs, airports, project) : MAP_VIEWS.global);
 });
+$('#airport-set')?.addEventListener('change', event => changeAirportSet(event.target.value));
+$('#research-case')?.addEventListener('change', event => {
+  researchCase = RESEARCH_CASES.includes(event.target.value) ? event.target.value : 'base';
+  changeMode('research');
+});
+document.addEventListener('airportsetchange', event => changeAirportSet(event.detail.airportSet));
+$('#mode-research')?.addEventListener('click', () => changeMode('research'));
 $("#mode-demo").addEventListener("click", () => changeMode("demo"));
 $("#mode-quotes").addEventListener("click", () => changeMode("quotes"));
 $("#play-route").addEventListener("click", playRotation);
@@ -1112,7 +1193,9 @@ $("#download-plan").addEventListener("click", () => {
         aircraftProfile: aircraftKey,
         geographyStatus: "sourced-coordinates-great-circle-illustration",
         performanceStatus: "generated-with-explicit-overrides",
-        priceStatus: mode === "demo" ? "modeled-synthetic" : "user-supplied",
+        priceStatus: mode === "research" ? "research-estimates" : mode === "demo" ? "modeled-synthetic" : "user-supplied",
+        research: mode === "research" ? researchProvenance(routeCodes(), researchCase) : null,
+        researchSensitivity: sensitivity, airportSet,
         input: {...input,supplyChain:getIntegratedNetwork()},
         supplyOverrides:getIntegratedOverrides(),
         quotes: provenance,
@@ -1166,6 +1249,7 @@ document.addEventListener('integratedinputpending', () => setDirty("Supply netwo
 document.addEventListener('integratednetworkchange',event=>{if(event.detail.source==='user-edit')setDirty("Supply network inputs changed. Calculate the joint plan again.");});
 document.addEventListener("languagechange", () => {
   renderQuoteFeedback();
+  renderPlanningChoices(); renderResearchControls();
   const progress = motion?.getState().totalProgress ?? 0;
   const playing = motion?.getState().playing ?? false;
   const errors = [...currentErrors];
@@ -1197,6 +1281,8 @@ window.addEventListener("pagehide", () => {
   mapResizeObserver?.disconnect();
   window.removeEventListener("resize", resizeMapSymbols);
 });
+renderPlanningChoices();
+renderResearchControls();
 setViewport(MAP_VIEWS.global);
 if ($("#scenario-preset")) $("#scenario-preset").value = preset;
 if ($("#map-scope")) $("#map-scope").value = mapScope;

@@ -1,3 +1,5 @@
+import './research-data-view.js';
+import { airportsInSet } from './airport-sets.js';
 import { airportLabel } from './airport-labels.js';
 import { t, getLanguage } from './i18n.js?v=20261113-integrated';
 import { buildScenarioDataset, AIRCRAFT_PROFILES } from './scenario-data.js';
@@ -11,6 +13,7 @@ const n = (value, digits = 2) => Number.isFinite(value)
 const label = value => typeof value === 'object' ? value[getLanguage()] || value.en : value;
 let dataset = buildScenarioDataset(getScenarioOptions());
 let selected = 'SIN';
+let airportSet = 'all';
 let routeState = null;
 let statusKey = '';
 let statusError = false;
@@ -40,11 +43,13 @@ function renderDetail() {
 }
 function renderLedger() {
   const search = $('#data-airport-search').value.toLowerCase().trim();
-  const records = dataset.records.filter(item => [item.code, item.airport.name, item.airport.city, airportLabel(item.airport, 'en').name, airportLabel(item.airport, 'en').city, airportLabel(item.airport, 'zh').name, item.airport.region, label(item.regionLabel)].join(' ').toLowerCase().includes(search));
+  const included = new Set(airportsInSet(airportSet).map(row=>row.code));
+  const records = dataset.records.filter(item => included.has(item.code)).filter(item => [item.code, item.airport.name, item.airport.city, airportLabel(item.airport, 'en').name, airportLabel(item.airport, 'en').city, airportLabel(item.airport, 'zh').name, item.airport.region, label(item.regionLabel)].join(' ').toLowerCase().includes(search));
+  if (!records.some(row=>row.code===selected)) selected = records[0]?.code;
   $('#data-airport-count').textContent = t('data.count', { visible:records.length, total:dataset.records.length });
   $('#data-airport-search').placeholder = t('data.searchPlaceholder');
   $('#data-airport-rows').innerHTML = records.length ? records.map(record => `<tr data-selected="${record.code === selected}"><td><button type="button" data-airport-detail="${record.code}" aria-pressed="${record.code === selected}">${record.code} · ${escape(airportLabel(record.airport, getLanguage()).city)}</button><small>${escape(airportLabel(record.airport, getLanguage()).name)}</small></td><td>${n(record.priceUsdPerT)}</td><td>${n(record.maxUpliftT, 0)}</td></tr>`).join('') : `<tr><td colspan="3">${t('data.noMatches')}</td></tr>`;
-  renderDetail();
+  if (records.length) renderDetail(); else $('#data-airport-detail').innerHTML = '';
 }
 function renderRoute() {
   const legs = routeState?.input?.legs?.filter(leg => leg.from && leg.to && leg.derivation) || [];
@@ -52,7 +57,7 @@ function renderRoute() {
   const profile = AIRCRAFT_PROFILES[routeState.aircraftKey];
   const headers = ['leg','distanceLabel','duration','burn','reserveLabel','carry','currentPrice'];
   $('#data-route-summary').innerHTML = `<p>${escape(t('data.routeIntro', { profile:label(profile.label), count:legs.length }))}</p>
-    <p class="data-copy">${t(routeState.priceMode === 'quotes' ? 'data.routeQuotes' : 'data.routeScenario')}</p>
+    <p class="data-copy">${t(routeState.priceMode === 'research' ? 'research.routeData' : routeState.priceMode === 'quotes' ? 'data.routeQuotes' : 'data.routeScenario')}</p>
     <div class="data-table-scroll"><table class="data-table data-route-table"><thead><tr>${headers.map(key => `<th>${t('data.' + key)}</th>`).join('')}</tr></thead><tbody>${legs.map(leg => `<tr><th>${leg.from} → ${leg.to}</th><td>${n(leg.distanceKm, 0)}</td><td>${n(leg.durationH)}</td><td>${n(leg.baseBurnT)}</td><td>${n(leg.reserveT)}</td><td>${n(100*leg.carryBurnRate, 1)}%</td><td>${Number.isFinite(leg.priceUsdPerT) ? n(leg.priceUsdPerT) : t('data.missingPrice')}</td></tr>`).join('')}</tbody></table></div>`;
 }
 function renderMethod() {
@@ -118,7 +123,8 @@ if ($('#data-assumption-form')) {
     const rows = dataset.records.map(record => [record.code,record.classification,record.priceUsdPerT,record.maxUpliftT,...record.components.map(component => component.value),record.referenceHub,record.distanceFromHubKm,dataset.revision]);
     download([header,...rows].map(row => row.map(cell).join(',')).join('\r\n') + '\r\n', 'fuel-atlas-scenario-airports.csv', 'text/csv;charset=utf-8');
   });
-  document.addEventListener('scenariodatachange', event => { routeState = event.detail; renderRoute(); });
+  document.addEventListener('airportsetchange', event=>{airportSet=event.detail.airportSet;renderLedger();});
+  document.addEventListener('scenariodatachange', event => { routeState = event.detail; airportSet = event.detail.airportSet || 'all'; renderLedger(); renderRoute(); });
   document.addEventListener('scenarioassumptionschange', () => { dataset = buildScenarioDataset(getScenarioOptions()); syncInputs(); renderLedger(); $('#data-region-rows').replaceChildren(); renderRegions(); });
   document.addEventListener('languagechange', () => { renderLedger(); renderRoute(); renderMethod(); renderRegions(); status(statusKey,statusError); });
 }

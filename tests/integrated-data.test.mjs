@@ -14,7 +14,7 @@ function directCost(network, code, stage = 0) {
     + route.basisAdjustmentUsdPerT + airport.intoPlaneUsdPerT + airport.taxAdjustmentUsdPerT;
 }
 
-test('all 67 origins preserve delivered scenario price without charging it twice or inferring a supplier location', () => {
+test('all available origins preserve delivered scenario price without charging it twice or inferring a supplier location', () => {
   for (const [i, sourceAirport] of airportData.entries()) {
     const destination = airportData[(i + 1) % airportData.length].code;
     const input = { legs: [{ from: sourceAirport.code, to: destination }] };

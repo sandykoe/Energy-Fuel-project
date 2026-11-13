@@ -671,9 +671,9 @@ export const shellMessages = {
     "en": "Select airports to build and inspect your flight route.",
     "zh": "选择机场，建立并查看你的航线。"
   },
-  "67 airport locations": {
-    "en": "67 airport locations",
-    "zh": "67 个机场位置"
+  "101 airport locations": {
+    "en": "101 airport locations",
+    "zh": "101 个机场位置"
   },
   "Great-circle routes · editable inputs": {
     "en": "Great-circle routes · editable inputs",

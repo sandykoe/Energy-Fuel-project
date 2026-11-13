@@ -18,6 +18,8 @@ while (argumentsList.length) {
 const geography = JSON.parse(await readFile(resolve(root, 'dist/data/global-airports.json'), 'utf8'));
 if (geography.source.snapshotSha256 !== GEOGRAPHY_PROVENANCE.snapshotSha256 || geography.fetchedAt !== GEOGRAPHY_PROVENANCE.snapshotRetrievedAt)
   throw new Error('Geography provenance changed. Review the sourced snapshot before updating scenario-data.js metadata.');
+if (geography.supplementalSource?.snapshotSha256 !== GEOGRAPHY_PROVENANCE.supplementalSource?.snapshotSha256)
+  throw new Error('Supplemental geography provenance changed; review the additional source snapshot.');
 const dataset = buildScenarioDataset();
 const records = new Map(geography.records.map(record => [record.code, record]));
 for (const row of dataset.records) {

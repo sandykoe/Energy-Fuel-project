@@ -15,6 +15,7 @@ const labels = (en, zh) => ({ en, zh });
 const airports = new Map(airportData.map(airport => [airport.code, airport]));
 export const GEOGRAPHY_PROVENANCE = freeze({
   classification: 'sourced_geography', sourceName: 'OurAirports',
+  supplementalSource: {"sourceUrl": "https://ourairports.com/data/", "license": "Public Domain", "upstreamSha256": "1aab80ccfa203a0d02476c16ac282d9e787cf3d08700d7365c5c5502a0db8ba7", "importedOn": "2026-11-14", "observedAt": null, "snapshotNote": "Retained OurAirports CSV from the local workspace; original retrieval time not recorded. Coordinates only; no airport fuel prices or capacity implied.", "geographicAdjustment": "SAW and AYT are classified as geographic Asia; OurAirports country-level continent classification for Türkiye is Europe.", "snapshot": "airport-extensions.json", "snapshotSha256": "d6be29aa54acd7b6caf4355c1b8d9d7ccf5039c3b55b7b734f995f289bc6ca52"},
   sourceUrl: 'https://ourairports.com/data/',
   snapshotRetrievedAt: '2026-11-12T21:14:01Z', observedAt: null,
   snapshotSha256: '00adda91255bcaf34a55d0dc7a27fbb569a1e67f11517014d4d9811c7c625af5',
@@ -176,6 +177,7 @@ function pricingFor(options) {
   return pricing;
 }
 function regionFor(item) {
+  if (item.region === 'TR') return 'europe'; // Same synthetic pricing region on both sides of the Bosporus.
   if (['AE', 'QA', 'SA', 'OM', 'KW', 'BH'].includes(item.region)) return 'gulf';
   if (['SG', 'TH', 'MY', 'ID', 'PH', 'VN'].includes(item.region)) return 'southeast_asia';
   if (['IN', 'LK', 'BD'].includes(item.region)) return 'south_asia';

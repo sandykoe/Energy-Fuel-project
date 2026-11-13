@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="./dashboard.css?v=20261102-header-2" />
     <script type="module" src="./i18n.js?v=20261113-integrated"></script>
     <script type="module" src="./workspace.js?v=20261113-integrated"></script>
-    <script type="module" src="./data-view.js?v=20261113-integrated"></script>
+    <script type="module" src="./data-view.js?v=20261114-research"></script>
 
     <link href="./flight.css" rel="stylesheet" />
     <link href="./workspace-flight.css" rel="stylesheet" />
@@ -24,9 +24,10 @@
     <link href="./data-view.css?v=20261113-integrated" rel="stylesheet" />
     <link href="./application.css?v=20261113-integrated" rel="stylesheet" />
     <link href="./integrated-view.css?v=20261113-integrated" rel="stylesheet" />
+    <link href="./planning-research.css?v=20261114" rel="stylesheet" />
     <script defer src="./research/research.js?v=20261113-integrated"></script>
     <script src="./integrated-view.js?v=20261113-integrated" type="module"></script>
-    <script src="./flight-app.js?v=20261113-integrated" type="module"></script>
+    <script src="./flight-app.js?v=20261114-research" type="module"></script>
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 36 36%22%3E%3Cpath fill=%22%230057b8%22 d=%22M4 29 17 5h13L17 29z%22/%3E%3C/svg%3E"
@@ -108,6 +109,7 @@
                 ><span id="route-caption">Choose your first airport</span>
               </div>
               <div class="mode-switch" aria-label="Price data mode" role="group">
+                <button id="mode-research" aria-pressed="false" data-i18n="research.mode">Research estimates</button>
                 <button id="mode-demo" class="selected" aria-pressed="true">
                   Generated inputs</button
                 ><button id="mode-quotes" aria-pressed="false">
@@ -128,6 +130,16 @@
                   </button>
                 </div>
               </div>
+              <div class="planning-data-controls">
+                <label><span data-i18n="airports.label">Airport set</span><select id="airport-set"></select></label>
+                <div id="airport-set-note" class="micro" aria-live="polite"></div>
+                <label id="research-case-control" hidden><span data-i18n="research.case">Price case</span><select id="research-case"><option value="low" data-i18n="research.low">Low</option><option value="base" selected data-i18n="research.base">Base</option><option value="high" data-i18n="research.high">High</option></select></label>
+              </div>
+              <div id="research-price-note" class="research-price-note" hidden><p data-i18n="research.note"></p><p data-i18n="research.dateNote"></p><a href="#data/research-dataset" data-i18n="research.details"></a></div>
+              <section class="route-example-picker" aria-labelledby="example-route-title">
+                <div class="example-controls"><label><span id="example-route-title" data-i18n="examples.label">Example route</span><select id="scenario-preset" aria-describedby="example-description"></select></label><button type="button" id="load-example" class="outline-button" data-i18n="examples.load">Load example</button></div>
+                <p id="example-description"></p><p id="example-defaults" class="micro" data-i18n="examples.defaults"></p>
+              </section>
               <form id="rotation-form">
                 <div class="rotation-settings">
                   <label
@@ -235,6 +247,7 @@
                 ></div>
               </form>
             </section>
+            <section id="research-sensitivity" class="research-sensitivity" aria-live="polite" hidden></section>
             <div class="workspace-grid">
               <section class="map-card" aria-labelledby="map-heading">
                 <div class="map-top">
@@ -245,8 +258,6 @@
                   <span class="map-tag" id="map-mode">ROUTE BUILDER</span>
                 </div>
                 <div class="model-toolbar" aria-label="Map and route settings" role="group">
-                  <label for="scenario-preset">Example route<select id="scenario-preset"><option value="global" selected>Global route</option><option value="eastasia">East Asia route</option></select></label>
-                  <button type="button" id="load-example" class="map-fit-button">Load example</button>
                   <label for="map-scope">Map view<select id="map-scope"><option value="global" selected>World</option><option value="eastasia">East Asia</option></select></label>
                   <button type="button" id="fit-route" class="map-fit-button">Fit route <span aria-hidden="true">⤢</span></button>
                 </div>
@@ -260,7 +271,7 @@
                   />
                   <div class="compass" aria-hidden="true">N<br />↑</div>
                   <div class="map-scale">
-                    67 airport locations <small>Great-circle routes · editable inputs</small>
+                    <span id="map-airport-count">101 airport locations</span> <small>Great-circle routes · editable inputs</small>
                   </div>
                   <div class="map-tooltip" id="airport-tooltip" hidden></div>
                   <div class="motion-detail" id="motion-detail">
