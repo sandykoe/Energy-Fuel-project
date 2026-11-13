@@ -49,6 +49,12 @@ For a local deployment, authenticate with `cf auth login`, then run `npm ci` and
 
 The production build verifies that the public page, workspace, planning engine and scenario data match the local build. Run `npm run check:deployment` to repeat this check, or pass a different base URL after `--`. This check requires network access to the deployed site.
 
+## Vercel deployment
+
+Import `sandykoe/Energy-Fuel-project` with production branch `main` and the repository root as the Root Directory. Choose the Other framework preset and Node.js 24.x in project settings. `vercel.json` installs dependencies with `npm ci`, builds with `npm run build`, and publishes `dist/`. No environment variables are required for the current static application.
+
+Vercel publishes the build automatically. The `npm run deploy` command is for Cloudflare. After a Vercel deployment, run `npm run check:deployment -- https://YOUR-VERCEL-DOMAIN/` to compare the deployed page, engine and data with the local build.
+
 ## 首页操作与模型
 
 1. 选择出发和目的机场。按需添加、删除或调整停靠顺序，建立 1–5 个连续航段。通用宽体机或窄体机参数生成航时、耗油和保留油。

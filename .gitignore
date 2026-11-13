@@ -9,3 +9,4 @@ artifacts/
 *.zip
 .DS_Store
 .cloudflare/
+.vercel/
