@@ -1,5 +1,5 @@
 import { RESEARCH_PRICES, RESEARCH_CASES, researchRecord, researchCalibration, researchPrice, researchProvenance, adverseResearchSpread } from './research-prices.js';
-import { AIRPORT_SETS, airportsInSet, visibleAirports } from './airport-sets.js';
+import { AIRPORT_SETS, DEFAULT_AIRPORT_SET, airportsInSet, visibleAirports } from './airport-sets.js';
 import { ROUTE_EXAMPLES } from './route-examples.js';
 import { buildIntegratedNetwork } from './integrated-data.js';
 import { mapMarkup, project } from "./world-map.js";
@@ -121,7 +121,7 @@ let aircraftKey = "widebody";
 let scenarioOptions = getScenarioOptions();
 let airportPriceOverrides = {};
 let preset = "short-haul";
-let airportSet = "all", researchCase = "base";
+let airportSet = DEFAULT_AIRPORT_SET, researchCase = "base";
 let sensitivity = null;
 const emptyLeg = (from = "", to = "") => ({ from, to, overrides: {}, derivation: null });
 const profileAircraft = () => {

@@ -81,11 +81,11 @@ test('research deep links, internal references and browser history select the ri
   const { $, document, window, click, visible, scrolled, focused } = ui;
   assert.deepEqual(visible(), ['workspace-research']);
   assert.deepEqual(scrolled, ['essay']);
-  assert.equal(document.title, '研究 — 燃油图谱');
-  click('#workspace-research a[href="#research/methods"]');
-  assert.equal(window.location.hash, '#research/methods');
-  assert.equal(focused.at(-1), 'methods');
-  assert.equal(scrolled.at(-1), 'methods');
+  assert.equal(document.title, 'Research — Fuel Atlas');
+  click('#workspace-research a[href="#research/geography"]');
+  assert.equal(window.location.hash, '#research/geography');
+  assert.equal(focused.at(-1), 'geography');
+  assert.equal(scrolled.at(-1), 'geography');
   click('#workspace-tab-briefing');
   window.location.hash = '#research/essay';
   window.dispatchEvent(new window.Event('popstate'));
@@ -132,6 +132,8 @@ test('embedded research preserves frozen content and rebases local download/figu
   const app = parseHTML(html).document, source = parseHTML(exhibit).document;
   assert.equal(app.querySelector('#research-data').textContent, source.querySelector('#research-data').textContent);
   assert.equal(app.querySelector('#essay-content').textContent, source.querySelector('#essay-content').textContent);
+  assert.equal(app.querySelector('#workspace-research #methods, #workspace-research #downloads'), null);
+  assert.equal(app.querySelector('#workspace-research a[href="#research/methods"], #workspace-research a[href="#research/downloads"]'), null);
   for (const node of app.querySelectorAll('#workspace-research [href], #workspace-research [src]')) {
     const value = node.getAttribute('href') || node.getAttribute('src');
     if (value.startsWith('#')) assert.ok(value.startsWith('#research/') || /^#(?:calculations|sources)$/.test(value));

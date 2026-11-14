@@ -168,7 +168,8 @@ test("initial model is an empty route builder with no computed result or autopla
  assert.equal($('[data-leg="0"][data-key="to"]').value||'', '');
  assert.equal(document.querySelector('#animated-plane'),null);
  assert.equal(document.querySelectorAll('.route-path').length,0);
- assert.equal(document.querySelectorAll('.map-airport').length,101);
+ assert.equal($('#airport-set').value,'research');
+ assert.equal(document.querySelectorAll('.map-airport').length,50);
  assert.equal($('#savings').textContent,'—');assert.equal($('#download-plan').disabled,true);
  assert.equal($('#motion-toggle').disabled,true);
  assert.doesNotThrow(()=>ui.click('#fit-route'));

@@ -65,6 +65,8 @@ function embedResearch(html) {
   const fragment = document.createElement('div');
   fragment.className = 'research-content';
   fragment.innerHTML = navigation.outerHTML + main.innerHTML + data.outerHTML;
+  // The app presents the analysis without the standalone submission material.
+  for (const node of fragment.querySelectorAll('#methods, #downloads, a[href="#methods"], a[href="#downloads"]')) node.remove();
   for (const node of fragment.querySelectorAll('[href], [src]')) {
     for (const attribute of ['href', 'src']) {
       const value = node.getAttribute(attribute);

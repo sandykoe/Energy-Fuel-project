@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -24,7 +24,7 @@
     <link href="./data-view.css?v=20261113-integrated" rel="stylesheet" />
     <link href="./application.css?v=20261113-integrated" rel="stylesheet" />
     <link href="./integrated-view.css?v=20261113-integrated" rel="stylesheet" />
-    <link href="./planning-research.css?v=20261114" rel="stylesheet" />
+    <link href="./planning-research.css?v=20261114-layout" rel="stylesheet" />
     <script defer src="./research/research.js?v=20261113-integrated"></script>
     <script src="./integrated-view.js?v=20261113-integrated" type="module"></script>
     <script src="./flight-app.js?v=20261114-research" type="module"></script>
@@ -64,8 +64,8 @@
           Aviation fuel planning <span>/ Fuel Atlas</span>
         </div>
         <div class="language-switch" role="group" aria-label="Interface language">
-          <button type="button" id="language-zh" data-language="zh" lang="zh-CN" aria-pressed="true">中文</button>
-          <button type="button" id="language-en" data-language="en" lang="en" aria-pressed="false">English</button>
+          <button type="button" id="language-zh" data-language="zh" lang="zh-CN" aria-pressed="false">中文</button>
+          <button type="button" id="language-en" data-language="en" lang="en" aria-pressed="true">English</button>
         </div>
       </header>
       <nav class="workspace-navigation" aria-label="Main workspace">
@@ -124,22 +124,20 @@
                   <h2>Route inputs and constraints</h2>
                 </div>
                 <div class="rotation-actions">
-                  <button class="text-button" id="reset-plan">Clear route</button
-                  ><button class="button subtle small" id="add-leg">
-                    ＋ Add flight leg
-                  </button>
+                  <button class="text-button" id="reset-plan">Clear route</button>
                 </div>
               </div>
-              <div class="planning-data-controls">
-                <label><span data-i18n="airports.label">Airport set</span><select id="airport-set"></select></label>
-                <div id="airport-set-note" class="micro" aria-live="polite"></div>
-                <label id="research-case-control" hidden><span data-i18n="research.case">Price case</span><select id="research-case"><option value="low" data-i18n="research.low">Low</option><option value="base" selected data-i18n="research.base">Base</option><option value="high" data-i18n="research.high">High</option></select></label>
-              </div>
-              <div id="research-price-note" class="research-price-note" hidden><p data-i18n="research.note"></p><p data-i18n="research.dateNote"></p><a href="#data/research-dataset" data-i18n="research.details"></a></div>
               <section class="route-example-picker" aria-labelledby="example-route-title">
-                <div class="example-controls"><label><span id="example-route-title" data-i18n="examples.label">Example route</span><select id="scenario-preset" aria-describedby="example-description"></select></label><button type="button" id="load-example" class="outline-button" data-i18n="examples.load">Load example</button></div>
+                <div class="planning-data-controls">
+                  <label><span data-i18n="airports.mapLabel">Show airports on map</span><select id="airport-set" aria-describedby="airport-set-note"></select></label>
+                  <label><span id="example-route-title" data-i18n="examples.label">Try an example route to show fuel savings</span><select id="scenario-preset" aria-describedby="example-description"></select></label>
+                  <button type="button" id="load-example" class="outline-button" data-i18n="examples.load">Load example</button>
+                  <label id="research-case-control" hidden><span data-i18n="research.case">Price case</span><select id="research-case"><option value="low" data-i18n="research.low">Low</option><option value="base" selected data-i18n="research.base">Base</option><option value="high" data-i18n="research.high">High</option></select></label>
+                </div>
+                <div id="airport-set-note" class="micro" aria-live="polite"></div>
                 <p id="example-description"></p><p id="example-defaults" class="micro" data-i18n="examples.defaults"></p>
               </section>
+              <div id="research-price-note" class="research-price-note" hidden><p data-i18n="research.note"></p><p data-i18n="research.dateNote"></p><a href="#data/research-dataset" data-i18n="research.details"></a></div>
               <form id="rotation-form">
                 <div class="rotation-settings">
                   <label
@@ -184,6 +182,9 @@
                     </thead>
                     <tbody id="leg-rows"></tbody>
                   </table>
+                </div>
+                <div class="leg-actions">
+                  <button type="button" class="button subtle small" id="add-leg">＋ Add flight leg</button>
                 </div>
                 <details class="advanced">
                   <summary>Performance & weight constraints <span>Edit assumptions ＋</span></summary>

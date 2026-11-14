@@ -292,8 +292,10 @@ try {
   } else {
   const page = await makePage();
   await load(page);
-  assert.equal(await page.locator('html').getAttribute('lang'), 'zh-CN');
-  assert.equal(await page.locator('#language-zh').getAttribute('aria-pressed'), 'true');
+  assert.equal(await page.locator('html').getAttribute('lang'), 'en');
+  assert.equal(await page.locator('#language-en').getAttribute('aria-pressed'), 'true');
+  assert.equal(await page.locator('#airport-set').inputValue(), 'research');
+  assert.equal(await page.locator('#data-airport-set').inputValue(), 'research');
   assert.deepEqual(await page.locator('.workspace-tabs [role="tab"]').evaluateAll(items => items.map(item => item.dataset.workspace)), panelNames);
   const duplicateIds = await page.evaluate(() => { const ids = [...document.querySelectorAll('[id]')].map(item => item.id); return [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))]; });
   assert.deepEqual(duplicateIds, []);
@@ -303,7 +305,7 @@ try {
   assert.equal(await page.locator('#chain-results').isVisible(), false);
   assert.equal(await page.locator('#chain-inputs').isVisible(), false);
   assert.ok(!/[0-9]/.test(await page.locator('#savings').textContent()));
-  record('First visit is Chinese, with one empty leg and no invented result or aircraft playback');
+  record('First visit is English with Asia Top 50 selected in both tabs, one empty leg and no invented result or aircraft playback');
   for (const locale of ['zh', 'en']) {
     await language(page, locale);
     for (const width of [390, 1440]) {

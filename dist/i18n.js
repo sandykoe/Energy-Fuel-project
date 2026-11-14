@@ -21,7 +21,7 @@ for (const [key, entry] of Object.entries(messages)) {
   byText.set(normalize(entry.zh), entry);
 }
 const STORAGE_KEY = 'fuel-atlas-language';
-let language = 'zh';
+let language = 'en';
 let currentDocument = null;
 let observer = null;
 let pending = false;
@@ -134,7 +134,7 @@ export function initI18n(doc = globalThis.document) {
   currentDocument = doc;
   let stored;
   try { stored = doc.defaultView?.localStorage?.getItem(STORAGE_KEY); } catch { /* Default language below. */ }
-  language = stored === 'en' ? 'en' : 'zh';
+  language = stored === 'zh' ? 'zh' : 'en';
   for (const button of doc.querySelectorAll('button[data-language]')) {
     button.addEventListener('click', () => setLanguage(button.dataset.language));
   }

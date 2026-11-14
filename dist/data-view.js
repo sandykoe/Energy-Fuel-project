@@ -1,5 +1,5 @@
 import './research-data-view.js';
-import { airportsInSet } from './airport-sets.js';
+import { DEFAULT_AIRPORT_SET, airportsInSet } from './airport-sets.js';
 import { airportLabel } from './airport-labels.js';
 import { t, getLanguage } from './i18n.js?v=20261113-integrated';
 import { buildScenarioDataset, AIRCRAFT_PROFILES } from './scenario-data.js';
@@ -13,7 +13,7 @@ const n = (value, digits = 2) => Number.isFinite(value)
 const label = value => typeof value === 'object' ? value[getLanguage()] || value.en : value;
 let dataset = buildScenarioDataset(getScenarioOptions());
 let selected = 'SIN';
-let airportSet = 'all';
+let airportSet = DEFAULT_AIRPORT_SET;
 let routeState = null;
 let statusKey = '';
 let statusError = false;
@@ -124,7 +124,7 @@ if ($('#data-assumption-form')) {
     download([header,...rows].map(row => row.map(cell).join(',')).join('\r\n') + '\r\n', 'fuel-atlas-scenario-airports.csv', 'text/csv;charset=utf-8');
   });
   document.addEventListener('airportsetchange', event=>{airportSet=event.detail.airportSet;renderLedger();});
-  document.addEventListener('scenariodatachange', event => { routeState = event.detail; airportSet = event.detail.airportSet || 'all'; renderLedger(); renderRoute(); });
+  document.addEventListener('scenariodatachange', event => { routeState = event.detail; airportSet = event.detail.airportSet || DEFAULT_AIRPORT_SET; renderLedger(); renderRoute(); });
   document.addEventListener('scenarioassumptionschange', () => { dataset = buildScenarioDataset(getScenarioOptions()); syncInputs(); renderLedger(); $('#data-region-rows').replaceChildren(); renderRegions(); });
   document.addEventListener('languagechange', () => { renderLedger(); renderRoute(); renderMethod(); renderRegions(); status(statusKey,statusError); });
 }
