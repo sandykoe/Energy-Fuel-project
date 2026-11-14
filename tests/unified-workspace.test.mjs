@@ -138,6 +138,9 @@ test('embedded research preserves numerical evidence, replaces the essay and reb
   assert.ok(app.querySelector('#essay-content').hasAttribute('data-no-i18n'));
   assert.equal(app.querySelector('#essay-word-count'), null);
   assert.equal(app.querySelector('#essay a[download]'), null);
+  assert.equal(app.querySelector('#references-title').textContent, 'More Sources used in the project');
+  assert.equal(app.querySelector('#references .section-heading p'), null);
+  assert.equal(app.querySelector('#reference-content').textContent, source.querySelector('#reference-content').textContent);
   assert.equal(app.querySelector('#workspace-research #methods, #workspace-research #downloads'), null);
   assert.equal(app.querySelector('#workspace-research a[href="#research/methods"], #workspace-research a[href="#research/downloads"]'), null);
   for (const node of app.querySelectorAll('#workspace-research [href], #workspace-research [src]')) {

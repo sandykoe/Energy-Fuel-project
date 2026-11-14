@@ -72,6 +72,9 @@ function embedResearch(html, essay) {
   fragment.querySelector('a[href="#essay"]').textContent = 'Project essay';
   // The app presents the analysis without the standalone submission material.
   for (const node of fragment.querySelectorAll('#methods, #downloads, a[href="#methods"], a[href="#downloads"]')) node.remove();
+  const referencesHeading = fragment.querySelector('#references .section-heading');
+  referencesHeading.querySelector('#references-title').textContent = 'More Sources used in the project';
+  for (const node of referencesHeading.querySelectorAll('p')) node.remove();
   for (const node of fragment.querySelectorAll('[href], [src]')) {
     for (const attribute of ['href', 'src']) {
       const value = node.getAttribute(attribute);

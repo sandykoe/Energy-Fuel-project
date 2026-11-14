@@ -1,5 +1,9 @@
 // Research text translations. English essay and numerical inputs stay unchanged.
 export const researchMessages = {
+  "More Sources used in the project": {
+    "en": "More Sources used in the project",
+    "zh": "项目使用的更多资料来源"
+  },
   "Project essay": {
     "en": "Project essay",
     "zh": "项目文章"
