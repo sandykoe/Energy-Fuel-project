@@ -1,5 +1,21 @@
 // Research text translations. English essay and numerical inputs stay unchanged.
 export const researchMessages = {
+  "Project essay": {
+    "en": "Project essay",
+    "zh": "项目文章"
+  },
+  "05 / EXPLANATORY ESSAY": {
+    "en": "05 / EXPLANATORY ESSAY",
+    "zh": "05 / 项目说明文章"
+  },
+  "Project explanatory essay": {
+    "en": "Project explanatory essay",
+    "zh": "项目说明文章"
+  },
+  "Download essay (Word)": {
+    "en": "Download essay (Word)",
+    "zh": "下载文章（Word）"
+  },
   "In this analysis": {
     "en": "In this analysis",
     "zh": "本文内容"

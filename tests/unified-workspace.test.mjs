@@ -128,10 +128,18 @@ test('legacy research URLs redirect only hosted entry requests and preserve sect
   assert.deepEqual(run('file:///tmp/exhibit/index.html#essay'), []);
 });
 
-test('embedded research preserves frozen content and rebases local download/figure links', async () => {
+test('embedded research preserves numerical evidence, replaces the essay and rebases local links', async () => {
   const app = parseHTML(html).document, source = parseHTML(exhibit).document;
+  const essay = parseHTML(await readFile(new URL('../src/workspace/explanatory-essay.html', import.meta.url), 'utf8')).document;
   assert.equal(app.querySelector('#research-data').textContent, source.querySelector('#research-data').textContent);
-  assert.equal(app.querySelector('#essay-content').textContent, source.querySelector('#essay-content').textContent);
+  assert.equal(app.querySelector('#essay-content').textContent, essay.querySelector('#essay-content').textContent);
+  assert.match(app.querySelector('#essay-content').textContent, /Shankai Wei, Sandy Koenig, Gastón T\. Ocampo, and Marco Kaupp/);
+  assert.equal(app.querySelector('#essay-content').getAttribute('lang'), 'en');
+  assert.ok(app.querySelector('#essay-content').hasAttribute('data-no-i18n'));
+  assert.equal(app.querySelector('#essay-word-count'), null);
+  const download = app.querySelector('#essay a[download]');
+  assert.equal(download.getAttribute('href'), './research/downloads/AES-Fuel-Project-Explanatory-Essay.docx');
+  assert.equal(download.getAttribute('download'), 'AES-Fuel-Project-Explanatory Essay.docx');
   assert.equal(app.querySelector('#workspace-research #methods, #workspace-research #downloads'), null);
   assert.equal(app.querySelector('#workspace-research a[href="#research/methods"], #workspace-research a[href="#research/downloads"]'), null);
   for (const node of app.querySelectorAll('#workspace-research [href], #workspace-research [src]')) {

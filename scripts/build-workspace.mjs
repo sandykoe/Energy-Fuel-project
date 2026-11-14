@@ -56,7 +56,7 @@ export function scopeResearchCss(css, scope = '#workspace-research') {
   return output;
 }
 
-function embedResearch(html) {
+function embedResearch(html, essay) {
   const { document } = parseHTML(html);
   const main = document.querySelector('main');
   const navigation = document.querySelector('.section-nav');
@@ -65,6 +65,11 @@ function embedResearch(html) {
   const fragment = document.createElement('div');
   fragment.className = 'research-content';
   fragment.innerHTML = navigation.outerHTML + main.innerHTML + data.outerHTML;
+  // Keep the numerical exhibit frozen while displaying the team's supplied essay.
+  const replacement = parseHTML(essay).document.querySelector('#essay');
+  if (!replacement || !fragment.querySelector('#essay')) throw new Error('Research essay is missing');
+  fragment.querySelector('#essay').replaceWith(replacement);
+  fragment.querySelector('a[href="#essay"]').textContent = 'Project essay';
   // The app presents the analysis without the standalone submission material.
   for (const node of fragment.querySelectorAll('#methods, #downloads, a[href="#methods"], a[href="#downloads"]')) node.remove();
   for (const node of fragment.querySelectorAll('[href], [src]')) {
@@ -96,16 +101,17 @@ function embedSourcePlan(html) {
 }
 
 export async function composeWorkspace({ check = false } = {}) {
-  const [template, research, css, brief, fuelData, sources, supply, chainResults] = await Promise.all([
+  const [template, research, css, brief, fuelData, sources, supply, chainResults, essay] = await Promise.all([
     read('src/workspace/index.template.html'), read('dist/research/index.html'),
     read('dist/research/research.css'), read('dist/brief/brief.html'),
     read('dist/data-view/panel.html'), read('dist/data-view/sources.html'), read('dist/integrated-view/panel.html'), read('dist/integrated-view/results.html'),
+    read('src/workspace/explanatory-essay.html'),
   ]);
   for (const marker of ['<!-- WORKSPACE:RESEARCH -->', '<!-- WORKSPACE:BRIEF -->', '<!-- WORKSPACE:DATA -->', '<!-- WORKSPACE:SOURCES -->', '<!-- WORKSPACE:SUPPLY -->', '<!-- WORKSPACE:CHAIN_RESULTS -->']) {
     if (template.split(marker).length !== 2) throw new Error(`Expected one ${marker} marker`);
   }
   if (parseHTML(supply).document.querySelector('form')) throw new Error('Supply inputs must share rotation-form; nested forms are not allowed');
-  const html = template.replace('<!-- WORKSPACE:RESEARCH -->', embedResearch(research))
+  const html = template.replace('<!-- WORKSPACE:RESEARCH -->', embedResearch(research, essay))
     .replace('<!-- WORKSPACE:BRIEF -->', brief.trim())
     .replace('<!-- WORKSPACE:DATA -->', fuelData.trim())
     .replace('<!-- WORKSPACE:SOURCES -->', embedSourcePlan(sources))

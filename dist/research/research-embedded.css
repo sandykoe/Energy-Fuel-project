@@ -922,6 +922,76 @@
 #workspace-research .essay-prose p:last-child {
   margin-bottom: 0;
 }
+#workspace-research .essay-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-shrink: 0;
+  padding: 12px 18px;
+  border: 1px solid var(--blue);
+  border-radius: 6px;
+  color: var(--blue);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+#workspace-research .essay-download:hover {
+  background: var(--blue-soft);
+}
+#workspace-research .essay-document-header {
+  padding-bottom: 28px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--line);
+}
+#workspace-research .essay-document-header .essay-course {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+#workspace-research .essay-document-header h3 {
+  font-size: 24px;
+  line-height: 1.45;
+  font-weight: 600;
+  margin: 0 0 20px;
+}
+#workspace-research .essay-document-header p {
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+#workspace-research .essay-prose > h3 {
+  font-size: 20px;
+  line-height: 1.5;
+  margin: 36px 0 16px;
+}
+#workspace-research .essay-prose > h4 {
+  font-size: 17px;
+  margin: 28px 0 12px;
+}
+#workspace-research .essay-prose ul {
+  padding-left: 24px;
+  margin: 0 0 28px;
+}
+#workspace-research .essay-prose li {
+  padding-left: 4px;
+  margin-bottom: 18px;
+}
+#workspace-research .essay-prose a {
+  overflow-wrap: anywhere;
+}
+#workspace-research .essay-bibliography {
+  border-top: 1px solid var(--line);
+  margin-top: 36px;
+  padding-top: 24px;
+  font-size: 14px;
+  line-height: 1.75;
+}
+#workspace-research .essay-bibliography h3 {
+  font-size: 18px;
+  margin: 0 0 22px;
+}
 #workspace-research .methods-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
