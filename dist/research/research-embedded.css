@@ -922,23 +922,6 @@
 #workspace-research .essay-prose p:last-child {
   margin-bottom: 0;
 }
-#workspace-research .essay-download {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  flex-shrink: 0;
-  padding: 12px 18px;
-  border: 1px solid var(--blue);
-  border-radius: 6px;
-  color: var(--blue);
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-}
-#workspace-research .essay-download:hover {
-  background: var(--blue-soft);
-}
 #workspace-research .essay-document-header {
   padding-bottom: 28px;
   margin-bottom: 32px;

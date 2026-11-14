@@ -137,9 +137,7 @@ test('embedded research preserves numerical evidence, replaces the essay and reb
   assert.equal(app.querySelector('#essay-content').getAttribute('lang'), 'en');
   assert.ok(app.querySelector('#essay-content').hasAttribute('data-no-i18n'));
   assert.equal(app.querySelector('#essay-word-count'), null);
-  const download = app.querySelector('#essay a[download]');
-  assert.equal(download.getAttribute('href'), './research/downloads/AES-Fuel-Project-Explanatory-Essay.docx');
-  assert.equal(download.getAttribute('download'), 'AES-Fuel-Project-Explanatory Essay.docx');
+  assert.equal(app.querySelector('#essay a[download]'), null);
   assert.equal(app.querySelector('#workspace-research #methods, #workspace-research #downloads'), null);
   assert.equal(app.querySelector('#workspace-research a[href="#research/methods"], #workspace-research a[href="#research/downloads"]'), null);
   for (const node of app.querySelectorAll('#workspace-research [href], #workspace-research [src]')) {
